@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "brains_backend": {
+      "candid": "src/brains_backend/brains_backend.did",
+      "package": "brains_backend",
+      "type": "rust"
+    },
+    "brains_frontend": {
+      "dependencies": [
+        "brains_backend"
+      ],
+      "source": [
+        "src/brains_frontend/assets"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
