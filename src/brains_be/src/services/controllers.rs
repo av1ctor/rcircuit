@@ -15,7 +15,7 @@ impl ControllersService {
             return Err("Anonymous not allowed".to_string());
         }
 
-        db.controllers.borrow_mut().insert_and_notify(caller.to_owned(), ctrl.clone())
+        db.controllers.borrow_mut().insert_and_notify(ctrl.id, ctrl.clone())
     }
 
     pub fn _update(

@@ -36,20 +36,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "brains-engine",
- "candid",
- "ic-cdk",
- "ic-cdk-timers",
- "neuralarena-cdk",
- "rand",
- "serde",
- "three-rs",
-]
-
-[[package]]
 name = "base64"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -138,6 +124,20 @@ dependencies = [
  "serde",
  "strum",
  "strum_macros",
+ "three-rs",
+]
+
+[[package]]
+name = "brains_be"
+version = "0.1.0"
+dependencies = [
+ "brains-engine",
+ "candid",
+ "ic-cdk",
+ "ic-cdk-timers",
+ "neuralarena-cdk",
+ "rand",
+ "serde",
  "three-rs",
 ]
 

@@ -6,8 +6,17 @@ type AssetValue = variant {
   None;
   Text : text;
 };
-type ControllerRequest = record { name : text; description : opt text };
-type InitArg = record { controller : ControllerRequest };
+type ControllerRequest = record {
+  "principal" : principal;
+  name : text;
+  description : opt text;
+};
+type InitArg = record { controllers : vec ControllerRequest };
+type InstanceCreateResponse = record {
+  min_players : nat64;
+  instance_id : text;
+  max_players : nat64;
+};
 type InstanceStep = record {
   terminated : bool;
   entities : vec nat8;
@@ -15,7 +24,7 @@ type InstanceStep = record {
   timedout : bool;
 };
 type Pagination = record { offset : nat32; limit : nat32 };
-type Result = variant { Ok : text; Err : text };
+type Result = variant { Ok : InstanceCreateResponse; Err : text };
 type Result_1 = variant { Ok : vec record { nat64; Asset }; Err : text };
 type Result_2 = variant { Ok : vec InstanceStep; Err : text };
 type Result_3 = variant { Ok; Err : text };

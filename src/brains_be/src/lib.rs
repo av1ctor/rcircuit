@@ -1,5 +1,6 @@
 use std::{cell::RefCell, collections::HashMap};
 use crate::db::DB;
+use brains_engine::consts;
 use candid::{CandidType, Principal};
 use ic_cdk::{api::stable, caller, trap};
 use models::controller::{Controller, ControllerRequest};
@@ -7,7 +8,12 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         assets::{Asset, AssetRef},
-        game_instance::{InstanceId, InstanceOptions, InstanceStep}
+        game_instance::{
+            InstanceCreateResponse, 
+            InstanceId, 
+            InstanceOptions, 
+            InstanceStep
+        }
     },
     utils::{
         random, serdeser, uniqueid
@@ -38,7 +44,7 @@ thread_local! {
 
 #[derive(Clone, CandidType, Deserialize)]
 struct InitArg {
-    controller: ControllerRequest,
+    controllers: Vec<ControllerRequest>,
 }
 
 #[ic_cdk::init]
@@ -54,19 +60,22 @@ fn init(
 
     random::init();
 
-    if let Err(msg) = init_controllers(arg.controller) {
+    if let Err(msg) = init_controllers(arg.controllers) {
         panic!("Calling init_controllers() failed: {}", msg);
     }
 }
 
 fn init_controllers(
-    req: ControllerRequest
+    controllers: Vec<ControllerRequest>
 ) -> Result<(), String> {
     let caller = caller();
         
     DB.with(|db| {
-        let ctrl = Controller::new(&req, &caller);
-        ControllersService::create(&ctrl, &mut db.borrow_mut(), &caller)
+        for controller in controllers {
+            let ctrl = Controller::new(&controller, &caller);
+            ControllersService::create(&ctrl, &mut db.borrow_mut(), &caller)?;
+        }
+        Ok(())
     })
 }
 
@@ -133,7 +142,7 @@ fn post_upgrade() {
 #[ic_cdk::update]
 pub fn instance_create(
     options: InstanceOptions
-) -> Result<InstanceId, String> {
+) -> Result<InstanceCreateResponse, String> {
     let caller = caller();
 
     DB.with(|db| {
@@ -144,7 +153,11 @@ pub fn instance_create(
             &mut db.borrow_mut(), 
             &caller
         ) {
-            Ok(()) => Ok(id),
+            Ok(()) => Ok(InstanceCreateResponse{ 
+                instance_id: id, 
+                min_players: consts::MIN_PLAYERS, 
+                max_players: consts::MAX_PLAYERS 
+            }),
             Err(msg) => Err(msg)
         }
     })

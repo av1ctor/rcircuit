@@ -1,15 +1,15 @@
 {
   "canisters": {
-    "backend": {
-      "candid": "src/backend/backend.did",
-      "package": "backend",
+    "brains_be": {
+      "candid": "src/brains_be/brains_be.did",
+      "package": "brains_be",
       "type": "rust",
       "optimize": "O4",
       "gzip": true
     },
-    "frontend": {
+    "brains_fe": {
       "source": [
-        "src/frontend/assets"
+        "src/brains_fe/assets"
       ],
       "type": "assets",
       "gzip": true
