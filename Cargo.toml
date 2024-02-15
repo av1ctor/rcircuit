@@ -1,4 +1,12 @@
 [workspace]
+resolver = "2"
+
 members = [
-    "src/brains_backend",
+    "src/backend",
 ]
+
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+codegen-units = 1

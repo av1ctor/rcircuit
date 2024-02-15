@@ -1,18 +1,18 @@
 {
   "canisters": {
-    "brains_backend": {
-      "candid": "src/brains_backend/brains_backend.did",
-      "package": "brains_backend",
-      "type": "rust"
+    "backend": {
+      "candid": "src/backend/backend.did",
+      "package": "backend",
+      "type": "rust",
+      "optimize": "O4",
+      "gzip": true
     },
-    "brains_frontend": {
-      "dependencies": [
-        "brains_backend"
-      ],
+    "frontend": {
       "source": [
-        "src/brains_frontend/assets"
+        "src/frontend/assets"
       ],
-      "type": "assets"
+      "type": "assets",
+      "gzip": true
     }
   },
   "defaults": {

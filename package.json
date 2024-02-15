@@ -1,0 +1,28 @@
+{
+  "name": "assets",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Brains assets",
+  "scripts": {
+    "prebuild": "dfx generate",
+    "deploy:local": "dfx deploy --network=local",
+    "deploy:ic": "dfx deploy --network=ic",
+    "deploy:backend:dev": "dfx deploy backend && npm run extract && npm run generate",
+    "extract": "candid-extractor target/wasm32-unknown-unknown/release/backend.wasm >./src/backend/backend.did",
+    "generate": "dfx generate backend"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "engines": {
+    "node": ">=20",
+    "npm": ">=9"
+  },
+  "browserslist": [
+    "last 2 chrome version",
+    "last 2 firefox version",
+    "last 2 safari version",
+    "last 2 edge version"
+  ]
+}

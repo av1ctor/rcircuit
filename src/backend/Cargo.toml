@@ -1,0 +1,17 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10.3"
+ic-cdk = "0.12.1"
+ic-cdk-timers = "0.6"
+serde = "1.0.190"
+rand = "=0.8.5"
+neuralarena-cdk = {version = "0.1.0", path = "../../../neuralarena-cdk", features = ["random", "uniqueid", "db", "nn", "cppmalloc"]}
+brains-engine = {version = "0.1.0", path = "../../../brains-engine", features = ["navigation"], default-features = false}
+three-rs = {version = "0.1.0", path = "../../../three-rs", features = []}
