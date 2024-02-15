@@ -11,7 +11,9 @@ use neuralarena_cdk::{
     db::traits::crud::{Crud, Pagination}, 
     dqn::dqn::DqnOptions, 
     models::{
-        assets::{Asset, AssetRef}, env::Env, game_instance::{InstanceId, InstanceStep}
+        assets::{Asset, AssetRef}, 
+        env::Env, 
+        game_instance::{InstanceId, InstanceStep}
     }, 
     nn::tensor::Tensor,
 };
@@ -44,7 +46,8 @@ pub struct InstancesService {}
 impl InstancesService {
     pub fn get_assets(
         db: &DB,
-        id: InstanceId
+        id: InstanceId,
+        asset_canister_url: &String
     ) -> Result<HashMap<AssetRef, Asset>, String> {
         let instances = db.instances.borrow_mut();
 
@@ -53,8 +56,7 @@ impl InstancesService {
             Some(e) => e.clone()
         };
 
-        let assets = instance.game.get_assets();
-        Ok(assets)
+        Ok(instance.game.get_assets(asset_canister_url))
     }
 
     pub fn create(

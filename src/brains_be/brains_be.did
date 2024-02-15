@@ -1,4 +1,5 @@
-type Asset = record { typ : nat64; data : vec record { text; AssetValue } };
+type Asset = record { typ : AssetType; data : vec record { text; AssetValue } };
+type AssetType = variant { Npc; Level; Object; Player };
 type AssetValue = variant {
   F32 : float32;
   U32 : nat32;
@@ -11,7 +12,10 @@ type ControllerRequest = record {
   name : text;
   description : opt text;
 };
-type InitArg = record { controllers : vec ControllerRequest };
+type InitArg = record {
+  controllers : vec ControllerRequest;
+  asset_canister_url : text;
+};
 type InstanceCreateResponse = record {
   min_players : nat64;
   instance_id : text;

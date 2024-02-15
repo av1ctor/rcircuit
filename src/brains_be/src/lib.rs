@@ -35,6 +35,7 @@ const STATE_VERSION: f32 = 0.1;
 #[derive(Default, Serialize, Deserialize)]
 struct State {
     owner: Option<Principal>,
+    asset_caninster_url: String,
 }
 
 thread_local! {
@@ -44,6 +45,7 @@ thread_local! {
 
 #[derive(Clone, CandidType, Deserialize)]
 struct InitArg {
+    asset_canister_url: String,
     controllers: Vec<ControllerRequest>,
 }
 
@@ -198,8 +200,14 @@ pub fn instance_run(
 pub fn instance_get_assets(
     id: InstanceId
 ) -> Result<HashMap<AssetRef, Asset>, String> {
-    DB.with(|db| {
-        InstancesService::get_assets(&db.borrow(), id)
+    STATE.with(|state| {
+        DB.with(|db| {
+            InstancesService::get_assets(
+                &db.borrow(), 
+                id, 
+                &state.borrow().asset_caninster_url
+            )
+        })
     })
 }
 

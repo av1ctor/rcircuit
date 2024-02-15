@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Brains assets",
   "scripts": {
+    "build": "",
     "prebuild": "dfx generate",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
