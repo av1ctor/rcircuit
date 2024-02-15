@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::{collections::{HashMap, HashSet}, f32::consts::PI};
 use brains_engine::{
     consts, 
     game::{Game, GameOptions, LevelOptions}, 
@@ -26,6 +26,10 @@ use super::controllers::ControllersService;
 const TENSORS: &[u8] = include_bytes!("../../tensors/15rays-32hidden-0.05epsilon.safetensors");
 const NUM_HIDDEN_LAYERS: usize = 32;
 const EPSILON: f64 = 0.05;
+const PLAYER_FOV_RAYS: usize = 15;
+const PLAYER_FOV_ANGLE: f32 = PI;
+const PLAYER_RADIUS: f32 = 0.5;
+
 const MAP: &[u8] = include_bytes!("../../maps/map-no-tex.glb");
 const NAVMESH: &[u8] = include_bytes!("../../maps/navmesh.bin");
 
@@ -61,13 +65,6 @@ impl InstancesService {
     ) -> Result<(), String> {
         Self::authorize(caller, db)?;
 
-        let rays = options["rays"].parse::<usize>()
-            .map_err(|err| err.to_string())?;
-        let angle = options["fov"].parse::<f32>()
-            .map_err(|err| err.to_string())?;
-        let player_radius = options["player_radius"].parse::<f32>()
-            .map_err(|err| err.to_string())?;
-        
         let game = Game::new(
             Map::new(MAP, NAVMESH),
             GameOptions {
@@ -75,14 +72,14 @@ impl InstancesService {
                     num: 0
                 },
                 fov: PlayerFOV { 
-                    rays, 
-                    angle, 
+                    rays: PLAYER_FOV_RAYS, 
+                    angle: PLAYER_FOV_ANGLE, 
                     max_dist: 2.5,
                 },
                 min_keys: 4,
                 max_steps: 60 * 60 * 2,
                 num_players: 0,
-                player_radius,
+                player_radius: PLAYER_RADIUS,
                 debug: false,
                 training: false,
             }
@@ -329,18 +326,19 @@ impl InstancesService {
         caller: &Principal, 
         db: &mut DB
     ) -> Result<(), String> {
-        //FIXME: remove this by-pass when the UI is done
-        if false {
-            if *caller == Principal::anonymous() {
-                return Err("Anonymous not allowed".to_string());
-            }
-            
-            match ControllersService::find_by_id(caller, db, caller) {
-                Ok(e) => e,
-                Err(msg) => return Err(msg),
-            };
-        }
+        let controller = match ControllersService::find_by_id(caller, db, caller) {
+            Ok(e) => e,
+            Err(msg) => return Err(msg),
+        };
 
-        Ok(())
+        if !controller.active {
+            Err("Controller inactive".to_string())
+        }
+        else if controller.banned {
+            Err("Controller banned".to_string())
+        }
+        else {
+            Ok(())
+        }
     }
 }

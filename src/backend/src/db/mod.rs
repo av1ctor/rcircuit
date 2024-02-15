@@ -9,24 +9,24 @@ use neuralarena_cdk::db::traits::table::{TableSerializable, TableDeserializable,
 
 #[derive(Clone, Debug)]
 pub enum TableName {
-    Instances,
     Controllers,
+    Instances,
 }
 
 pub struct DB {
-    pub instances: Rc<RefCell<InstancesTable>>,
     pub controllers: Rc<RefCell<ControllersTable>>,
+    pub instances: Rc<RefCell<InstancesTable>>,
 }
 
 impl DB {
     pub fn new(
     ) -> Self {
-        let instances = Rc::new(RefCell::new(InstancesTable::new()));
         let controllers = Rc::new(RefCell::new(ControllersTable::new()));
+        let instances = Rc::new(RefCell::new(InstancesTable::new()));
 
         Self {
-            instances,
             controllers,
+            instances,
         }
     }
 
@@ -34,6 +34,7 @@ impl DB {
         &self,
         writer: &mut StableWriter
     ) -> Result<(), String> {
+        self.controllers.borrow().serialize(writer)?;
         self.instances.borrow().serialize(writer)?;
         Ok(())
     }
@@ -42,6 +43,7 @@ impl DB {
         &mut self,
         reader: &mut StableReader
     ) -> Result<(), String> {
+        self.controllers.borrow_mut().deserialize(reader, true)?;
         self.instances.borrow_mut().deserialize(reader, true)?;
         Ok(())
     }

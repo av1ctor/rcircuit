@@ -20,6 +20,7 @@ pub struct Controller {
 
 #[derive(CandidType, Deserialize, Clone)]
 pub struct ControllerRequest {
+    principal: Principal,
     name: String,
     description: Option<String>,
 }
@@ -41,7 +42,7 @@ impl Controller {
         caller: &Principal
     ) -> Self {
         Self {
-            id: caller.clone(),
+            id: e.principal.clone(),
             name: e.name.clone(),
             description: e.description.clone(),
             active: true,
