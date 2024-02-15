@@ -111,7 +111,7 @@ impl InstancesService {
             Some(e) => e.clone()
         };
 
-        if instance.state.players.len() < consts::MIN_PLAYERS {
+        if players.len() < consts::MIN_PLAYERS {
             return Err("Too few players".to_string());
         }
 
@@ -326,10 +326,7 @@ impl InstancesService {
         caller: &Principal, 
         db: &mut DB
     ) -> Result<(), String> {
-        let controller = match ControllersService::find_by_id(caller, db, caller) {
-            Ok(e) => e,
-            Err(msg) => return Err(msg),
-        };
+        let controller = ControllersService::find_by_id(caller, db, caller)?;
 
         if !controller.active {
             Err("Controller inactive".to_string())
