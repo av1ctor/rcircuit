@@ -13,7 +13,7 @@ use neuralarena_cdk::{
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        game_instance::{InstanceId, InstanceStep}
+        instance::{InstanceId, InstanceStep}
     }, 
     nn::tensor::Tensor,
 };

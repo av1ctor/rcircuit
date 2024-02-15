@@ -3,7 +3,7 @@ use brains_engine::game::Game;
 use candid::{CandidType, Principal};
 use neuralarena_cdk::{
     agent::dqnagent::DqnAgent, 
-    models::game_instance::InstanceStep
+    models::instance::InstanceStep
 };
 use serde::{Serialize, Deserialize};
 

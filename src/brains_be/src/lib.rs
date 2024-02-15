@@ -8,8 +8,8 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         assets::{Asset, AssetRef},
-        game_instance::{
-            InstanceCreateResponse, 
+        game::{GameInfo, GameInfoResponse},
+        instance::{
             InstanceId, 
             InstanceOptions, 
             InstanceStep
@@ -35,7 +35,7 @@ const STATE_VERSION: f32 = 0.1;
 #[derive(Default, Serialize, Deserialize)]
 struct State {
     owner: Option<Principal>,
-    asset_caninster_url: String,
+    asset_canister_url: String,
 }
 
 thread_local! {
@@ -58,6 +58,7 @@ fn init(
     STATE.with(|r| {
         let mut state = r.borrow_mut();
         state.owner = Some(caller());
+        state.asset_canister_url = arg.asset_canister_url.clone();
     });
 
     random::init();
@@ -141,10 +142,33 @@ fn post_upgrade() {
     random::init();
 }
 
+#[ic_cdk::query]
+pub fn game_get_info(
+) -> Result<GameInfoResponse, String> {
+    let info = STATE.with(|state| {
+        let asset_canister_url = &state.borrow().asset_canister_url;
+        GameInfo {
+            name: "Braaains".to_string(),
+            version: 0.1,
+            description: "Eat brains and win the game!".to_string(),
+            category: "Zombies".to_string(),
+            min_players: consts::MIN_PLAYERS, 
+            max_players: consts::MAX_PLAYERS,
+            assets_url: asset_canister_url.clone(),
+            engine_wasm_url: asset_canister_url.replace("{}", "game-engine.zip"),
+            image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
+        }
+    });
+
+    Ok(GameInfoResponse{
+        info
+    })
+}
+
 #[ic_cdk::update]
 pub fn instance_create(
     options: InstanceOptions
-) -> Result<InstanceCreateResponse, String> {
+) -> Result<InstanceId, String> {
     let caller = caller();
 
     DB.with(|db| {
@@ -155,11 +179,7 @@ pub fn instance_create(
             &mut db.borrow_mut(), 
             &caller
         ) {
-            Ok(()) => Ok(InstanceCreateResponse{ 
-                instance_id: id, 
-                min_players: consts::MIN_PLAYERS, 
-                max_players: consts::MAX_PLAYERS 
-            }),
+            Ok(()) => Ok(id),
             Err(msg) => Err(msg)
         }
     })
@@ -205,7 +225,7 @@ pub fn instance_get_assets(
             InstancesService::get_assets(
                 &db.borrow(), 
                 id, 
-                &state.borrow().asset_caninster_url
+                &state.borrow().asset_canister_url
             )
         })
     })

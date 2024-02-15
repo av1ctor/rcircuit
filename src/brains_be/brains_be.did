@@ -12,14 +12,21 @@ type ControllerRequest = record {
   name : text;
   description : opt text;
 };
+type GameInfo = record {
+  min_players : nat64;
+  image_url : text;
+  name : text;
+  engine_wasm_url : text;
+  description : text;
+  max_players : nat64;
+  version : float32;
+  assets_url : text;
+  category : text;
+};
+type GameInfoResponse = record { info : GameInfo };
 type InitArg = record {
   controllers : vec ControllerRequest;
   asset_canister_url : text;
-};
-type InstanceCreateResponse = record {
-  min_players : nat64;
-  instance_id : text;
-  max_players : nat64;
 };
 type InstanceStep = record {
   terminated : bool;
@@ -28,14 +35,16 @@ type InstanceStep = record {
   timedout : bool;
 };
 type Pagination = record { offset : nat32; limit : nat32 };
-type Result = variant { Ok : InstanceCreateResponse; Err : text };
-type Result_1 = variant { Ok : vec record { nat64; Asset }; Err : text };
-type Result_2 = variant { Ok : vec InstanceStep; Err : text };
-type Result_3 = variant { Ok; Err : text };
+type Result = variant { Ok : GameInfoResponse; Err : text };
+type Result_1 = variant { Ok : text; Err : text };
+type Result_2 = variant { Ok : vec record { nat64; Asset }; Err : text };
+type Result_3 = variant { Ok : vec InstanceStep; Err : text };
+type Result_4 = variant { Ok; Err : text };
 service : (InitArg) -> {
-  instance_create : (vec record { text; text }) -> (Result);
-  instance_get_assets : (text) -> (Result_1) query;
-  instance_get_steps : (text, Pagination) -> (Result_2) query;
-  instance_run : (text) -> (Result_3);
-  instance_start : (text, vec principal) -> (Result_3);
+  game_get_info : () -> (Result) query;
+  instance_create : (vec record { text; text }) -> (Result_1);
+  instance_get_assets : (text) -> (Result_2) query;
+  instance_get_steps : (text, Pagination) -> (Result_3) query;
+  instance_run : (text) -> (Result_4);
+  instance_start : (text, vec principal) -> (Result_4);
 }

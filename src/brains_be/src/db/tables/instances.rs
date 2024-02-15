@@ -7,7 +7,7 @@ use neuralarena_cdk::{
             Table, TableData, TableDeserializable, TableSchema, TableSerializable, TableVersioned
         }
     }, 
-    models::game_instance::InstanceId
+    models::instance::InstanceId
 };
 use crate::models::instance::Instance;
 
