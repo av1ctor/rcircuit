@@ -9,8 +9,8 @@ use neuralarena_cdk::{
     models::{
         game::{GameInfo, GameInfoResponse},
         instance::{
-            InstanceAssetsResponse, InstanceId, 
-            InstanceOptions, InstanceStepsResponse
+            InstanceId, InstanceOptions, InstanceAssetsResponse, 
+            InstanceRunResponse, InstanceStepsResponse
         }
     },
     utils::{
@@ -201,7 +201,7 @@ pub fn instance_start(
 #[ic_cdk::update]
 pub fn instance_run(
     id: InstanceId
-) -> Result<(), String> {
+) -> Result<InstanceRunResponse, String> {
     DB.with(|db| {
         random::get().with(|rng| {
             InstancesService::run(

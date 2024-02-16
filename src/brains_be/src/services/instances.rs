@@ -13,7 +13,7 @@ use neuralarena_cdk::{
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        instance::{InstanceId, InstanceStep}
+        instance::{InstanceId, InstanceRunResponse, InstanceStep}
     }, 
     nn::tensor::Tensor,
 };
@@ -161,7 +161,7 @@ impl InstancesService {
         db: &mut DB,
         rng: &mut StdRng,
         caller: &Principal
-    ) -> Result<(), String> {
+    ) -> Result<InstanceRunResponse, String> {
         Self::authorize(caller, db)?;
         
         let mut instances = db.instances.borrow_mut();
@@ -256,7 +256,14 @@ impl InstancesService {
         let post = ic_cdk::api::performance_counter(0);
         ic_cdk::print((post - pre).to_string());
 
-        instances.update(id.to_owned(), instance)
+        let res = InstanceRunResponse {
+            won_at: instance.won_at.clone(),
+            won_by: instance.won_by.clone(),
+        };
+
+        instances.update(id.to_owned(), instance)?;
+
+        Ok(res)
     }
 
     fn shuffle_players_idx(

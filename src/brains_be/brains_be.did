@@ -29,6 +29,10 @@ type InitArg = record {
   asset_canister_url : text;
 };
 type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
+type InstanceRunResponse = record {
+  won_at : opt nat64;
+  won_by : opt principal;
+};
 type InstanceStep = record {
   terminated : bool;
   events : vec nat8;
@@ -40,12 +44,13 @@ type Result = variant { Ok : GameInfoResponse; Err : text };
 type Result_1 = variant { Ok : text; Err : text };
 type Result_2 = variant { Ok : InstanceAssetsResponse; Err : text };
 type Result_3 = variant { Ok : InstanceStepsResponse; Err : text };
-type Result_4 = variant { Ok; Err : text };
+type Result_4 = variant { Ok : InstanceRunResponse; Err : text };
+type Result_5 = variant { Ok; Err : text };
 service : (InitArg) -> {
   game_get_info : () -> (Result) query;
   instance_create : (vec record { text; text }) -> (Result_1);
   instance_get_assets : (text) -> (Result_2) query;
   instance_get_steps : (text, Pagination) -> (Result_3) query;
   instance_run : (text) -> (Result_4);
-  instance_start : (text, vec principal) -> (Result_4);
+  instance_start : (text, vec principal) -> (Result_5);
 }
