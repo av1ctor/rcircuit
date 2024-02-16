@@ -3,7 +3,8 @@
       "match": "wasm/*.wasm",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/wasm"
+        "Content-Type": "application/wasm",
+        "Cache-Control": "max-age=21600"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -11,7 +12,8 @@
     {
       "match": "maps/**/*",
       "headers": {
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "max-age=21600"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -19,7 +21,8 @@
     {
       "match": "models/**/*",
       "headers": {
-        "Access-Control-Allow-Origin": "*"
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "max-age=21600"
       },
       "ignore": false,
       "allow_raw_access": false
