@@ -31,7 +31,6 @@ type InitArg = record {
 type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
 type InstanceStep = record {
   terminated : bool;
-  entities : vec nat8;
   events : vec nat8;
   timedout : bool;
 };

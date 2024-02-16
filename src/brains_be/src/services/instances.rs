@@ -228,13 +228,11 @@ impl InstancesService {
             let step = game.step(&actions, 1.0, &mut renderer, rng);
             steps += 1;
 
-            let entities = game.serialize_entities()?;
             let events = game.serialize_events()?;
 
             instance.state.steps.push(InstanceStep {
                 terminated: step.terminated,
                 timedout: step.timedout,
-                entities,
                 events,
             });
 
