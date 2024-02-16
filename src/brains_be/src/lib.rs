@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::cell::RefCell;
 use crate::db::DB;
 use brains_engine::consts;
 use candid::{CandidType, Principal};
@@ -7,12 +7,10 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        assets::{Asset, AssetRef},
         game::{GameInfo, GameInfoResponse},
         instance::{
-            InstanceId, 
-            InstanceOptions, 
-            InstanceStep
+            InstanceAssetsResponse, InstanceId, 
+            InstanceOptions, InstanceStepsResponse
         }
     },
     utils::{
@@ -155,7 +153,7 @@ pub fn game_get_info(
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
             assets_url: asset_canister_url.clone(),
-            engine_wasm_url: asset_canister_url.replace("{}", "game-engine.zip"),
+            engine_wasm_url: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
             image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
         }
     });
@@ -219,14 +217,19 @@ pub fn instance_run(
 #[ic_cdk::query]
 pub fn instance_get_assets(
     id: InstanceId
-) -> Result<HashMap<AssetRef, Asset>, String> {
+) -> Result<InstanceAssetsResponse, String> {
     STATE.with(|state| {
         DB.with(|db| {
-            InstancesService::get_assets(
+            match InstancesService::get_assets(
                 &db.borrow(), 
                 id, 
                 &state.borrow().asset_canister_url
-            )
+            ) {
+                Ok(assets) => Ok(InstanceAssetsResponse {
+                    assets
+                }),
+                Err(msg) => Err(msg)
+            }
         })
     })
 }
@@ -235,9 +238,16 @@ pub fn instance_get_assets(
 pub fn instance_get_steps(
     id: InstanceId,
     pag: Pagination
-) -> Result<Vec<InstanceStep>, String> {
+) -> Result<InstanceStepsResponse, String> {
     DB.with(|db| {
-        InstancesService::steps(&id, pag, &mut db.borrow_mut(), &caller())
+        match InstancesService::steps(
+            &id, pag, &mut db.borrow_mut(), &caller()
+        ) {
+            Ok(steps) => Ok(InstanceStepsResponse {
+                steps
+            }),
+            Err(msg) => Err(msg)
+        }
     })
 }
 

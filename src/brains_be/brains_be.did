@@ -28,17 +28,19 @@ type InitArg = record {
   controllers : vec ControllerRequest;
   asset_canister_url : text;
 };
+type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
 type InstanceStep = record {
   terminated : bool;
   entities : vec nat8;
   events : vec nat8;
   timedout : bool;
 };
+type InstanceStepsResponse = record { steps : vec InstanceStep };
 type Pagination = record { offset : nat32; limit : nat32 };
 type Result = variant { Ok : GameInfoResponse; Err : text };
 type Result_1 = variant { Ok : text; Err : text };
-type Result_2 = variant { Ok : vec record { nat64; Asset }; Err : text };
-type Result_3 = variant { Ok : vec InstanceStep; Err : text };
+type Result_2 = variant { Ok : InstanceAssetsResponse; Err : text };
+type Result_3 = variant { Ok : InstanceStepsResponse; Err : text };
 type Result_4 = variant { Ok; Err : text };
 service : (InitArg) -> {
   game_get_info : () -> (Result) query;
