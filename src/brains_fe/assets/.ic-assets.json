@@ -1,0 +1,27 @@
+[
+    {
+      "match": "wasm/*.wasm",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/wasm"
+      },
+      "ignore": false,
+      "allow_raw_access": false
+    },
+    {
+      "match": "maps/**/*",
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      },
+      "ignore": false,
+      "allow_raw_access": false
+    },
+    {
+      "match": "models/**/*",
+      "headers": {
+        "Access-Control-Allow-Origin": "*"
+      },
+      "ignore": false,
+      "allow_raw_access": false
+    }
+  ]
