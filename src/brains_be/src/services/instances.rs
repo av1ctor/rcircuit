@@ -299,7 +299,7 @@ impl InstancesService {
         instances.delete(id)
     }
 
-    pub fn steps(
+    pub fn get_steps(
         id: &InstanceId,
         pag: Pagination,
         db: &mut DB,

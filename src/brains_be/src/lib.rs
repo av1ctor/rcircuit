@@ -240,7 +240,7 @@ pub fn instance_get_steps(
     pag: Pagination
 ) -> Result<InstanceStepsResponse, String> {
     DB.with(|db| {
-        match InstancesService::steps(
+        match InstancesService::get_steps(
             &id, pag, &mut db.borrow_mut(), &caller()
         ) {
             Ok(steps) => Ok(InstanceStepsResponse {
