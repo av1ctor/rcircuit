@@ -11,7 +11,8 @@ use neuralarena_cdk::{
         instance::{
             InstanceId, InstanceOptions, InstanceAssetsResponse, 
             InstanceRunResponse, InstanceStepsResponse
-        }
+        },
+        player::Player
     },
     utils::{
         random, serdeser, uniqueid
@@ -29,6 +30,18 @@ mod services;
 mod renderers;
 
 const STATE_VERSION: f32 = 0.1;
+const SKILLS: &[&str] = &[
+    "seek-target"
+];
+const ANIMATIONS: &[&str] = &[
+    "idle",
+    "walking",
+    "celebrating",
+    "bitting",
+    "hit",
+    "dying",
+    "dead",
+];
 
 #[derive(Default, Serialize, Deserialize)]
 struct State {
@@ -152,6 +165,8 @@ pub fn game_get_info(
             category: "Zombies".to_string(),
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
+            skills: SKILLS.iter().map(|s| s.to_string()).collect(),
+            animations: ANIMATIONS.iter().map(|a| a.to_string()).collect(),
             assets_url: asset_canister_url.clone(),
             engine_wasm_url: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
             image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
@@ -186,7 +201,7 @@ pub fn instance_create(
 #[ic_cdk::update]        
 pub fn instance_start(
     id: InstanceId,
-    players: Vec<Principal>
+    players: Vec<Player>
 ) -> Result<(), String> {     
     DB.with(|db| {
         InstancesService::start(

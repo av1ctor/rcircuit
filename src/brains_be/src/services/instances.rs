@@ -13,7 +13,8 @@ use neuralarena_cdk::{
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        instance::{InstanceId, InstanceRunResponse, InstanceStep}
+        instance::{InstanceId, InstanceRunResponse, InstanceStep},
+        player
     }, 
     nn::tensor::Tensor,
 };
@@ -100,7 +101,7 @@ impl InstancesService {
 
     pub fn start(
         id: InstanceId,
-        players: Vec<Principal>,
+        players: Vec<player::Player>,
         db: &mut DB,
         caller: &Principal
     ) -> Result<(), String> {
@@ -239,7 +240,7 @@ impl InstancesService {
             running = !step.terminated && !step.timedout;
 
             if let Some(winner) = step.winner {
-                instance.won_by = Some(instance.state.players[winner].clone());
+                instance.won_by = Some(instance.state.players[winner].id.clone());
                 instance.won_at = Some(ic_cdk::api::time());
             }
 
