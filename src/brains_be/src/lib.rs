@@ -10,9 +10,8 @@ use neuralarena_cdk::{
         game::{GameInfo, GameInfoResponse},
         instance::{
             InstanceId, InstanceOptions, InstanceAssetsResponse, 
-            InstanceRunResponse, InstanceStepsResponse
+            InstanceRunResponse, InstanceStepsResponse, InstancePlayer
         },
-        player::Player
     },
     utils::{
         random, serdeser, uniqueid
@@ -201,7 +200,7 @@ pub fn instance_create(
 #[ic_cdk::update]        
 pub fn instance_start(
     id: InstanceId,
-    players: Vec<Player>
+    players: Vec<InstancePlayer>
 ) -> Result<(), String> {     
     DB.with(|db| {
         InstancesService::start(

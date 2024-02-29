@@ -13,8 +13,7 @@ use neuralarena_cdk::{
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        instance::{InstanceId, InstanceRunResponse, InstanceStep},
-        player::Player
+        instance::{InstanceId, InstanceRunResponse, InstanceStep, InstancePlayer}
     }, 
     nn::tensor::Tensor,
 };
@@ -26,9 +25,6 @@ use crate::{
 };
 use super::controllers::ControllersService;
 
-const TENSORS: &[u8] = include_bytes!("../../tensors/15rays-32hidden-0.05epsilon.safetensors");
-const NUM_HIDDEN_LAYERS: usize = 32;
-const EPSILON: f64 = 0.05;
 const PLAYER_FOV_RAYS: usize = 15;
 const PLAYER_FOV_ANGLE: f32 = PI;
 const PLAYER_RADIUS: f32 = 0.5;
@@ -36,7 +32,7 @@ const PLAYER_RADIUS: f32 = 0.5;
 const MAP: &[u8] = include_bytes!("../../maps/map-no-tex.glb");
 const NAVMESH: &[u8] = include_bytes!("../../maps/navmesh.bin");
 
-struct InstancePlayer {
+struct Player {
     active: bool,
     last_thought: u32,
     steps_per_thought: u32,
@@ -101,7 +97,7 @@ impl InstancesService {
 
     pub fn start(
         id: InstanceId,
-        players: Vec<Player>,
+        players: Vec<InstancePlayer>,
         db: &mut DB,
         caller: &Principal
     ) -> Result<(), String> {
@@ -128,23 +124,20 @@ impl InstancesService {
 
         let mut agents = vec![];
 
-        for _ in 0..instance.state.players.len() {
+        for player in &instance.state.players {
             // create the agent
             let options = BaseAgentOptions { 
                 dqn: DqnOptions {
                     n_actions: instance.game.get_num_actions(),
                     n_obs: instance.game.get_num_obs(),
-                    n_hidden: NUM_HIDDEN_LAYERS
+                    n_hidden: player.nft.token_data.hidden_layers
                 },
-                epsilon: EPSILON,
+                epsilon: player.nft.token_data.epsilon as _,
             };
 
-            //TODO: 1. call the NFT's and retrieve the tensors
-            //      2. create an agent for each player
-            
             let mut agent = DqnAgent::new(&options);
 
-            agent.load(&TENSORS.to_vec())?;
+            agent.load(&player.tensors["seek-target"])?;
 
             agents.push(agent);
         }
@@ -192,8 +185,9 @@ impl InstancesService {
         let mut players = vec![];
         let obs = &game.reset(&mut renderer, rng);
         for i in 0..game.options.num_players {
+
             let steps_per_thought = rng.gen_range(1000..10000);
-            players.push(InstancePlayer {
+            players.push(Player {
                 active: true,
                 last_thought: 0,
                 steps_per_thought,

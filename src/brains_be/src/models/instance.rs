@@ -3,7 +3,7 @@ use brains_engine::game::Game;
 use candid::{CandidType, Principal};
 use neuralarena_cdk::{
     agent::dqnagent::DqnAgent, 
-    models::{instance::InstanceStep, player::Player}
+    models::instance::{InstancePlayer, InstanceStep}
 };
 use serde::{Serialize, Deserialize};
 
@@ -19,7 +19,7 @@ pub enum InstanceStatus {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InstanceState {
     pub status: InstanceStatus,
-    pub players: Vec<Player>,
+    pub players: Vec<InstancePlayer>,
     pub steps: Vec<InstanceStep>,
 }
 
