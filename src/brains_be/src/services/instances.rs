@@ -14,7 +14,7 @@ use neuralarena_cdk::{
         assets::{Asset, AssetRef}, 
         env::Env, 
         instance::{InstanceId, InstanceRunResponse, InstanceStep},
-        player
+        player::Player
     }, 
     nn::tensor::Tensor,
 };
@@ -36,7 +36,7 @@ const PLAYER_RADIUS: f32 = 0.5;
 const MAP: &[u8] = include_bytes!("../../maps/map-no-tex.glb");
 const NAVMESH: &[u8] = include_bytes!("../../maps/navmesh.bin");
 
-struct Player {
+struct InstancePlayer {
     active: bool,
     last_thought: u32,
     steps_per_thought: u32,
@@ -101,7 +101,7 @@ impl InstancesService {
 
     pub fn start(
         id: InstanceId,
-        players: Vec<player::Player>,
+        players: Vec<Player>,
         db: &mut DB,
         caller: &Principal
     ) -> Result<(), String> {
@@ -126,30 +126,30 @@ impl InstancesService {
         instance.game.options.num_players = players.len();
         instance.state.players = players;
 
-        // create the agent
-        let options = BaseAgentOptions { 
-            dqn: DqnOptions {
-                n_actions: instance.game.get_num_actions(),
-                n_obs: instance.game.get_num_obs(),
-                n_hidden: NUM_HIDDEN_LAYERS
-            },
-            epsilon: EPSILON,
-        };
-        
-        let mut agent = DqnAgent::new(&options);
+        let mut agents = vec![];
 
-        /*let tensors_path = format!(
-            "./weights/{}rays-{}hidden-{}epsilon.safetensors", 
-            instance.options.rays, 
-            instance.options.num_hidden_layers, 
-            instance.options.fps, 
-            instance.options.tps, 
-            instance.options.epsilon
-        );*/
-    
-        agent.load(&TENSORS.to_vec())?;
+        for _ in 0..instance.state.players.len() {
+            // create the agent
+            let options = BaseAgentOptions { 
+                dqn: DqnOptions {
+                    n_actions: instance.game.get_num_actions(),
+                    n_obs: instance.game.get_num_obs(),
+                    n_hidden: NUM_HIDDEN_LAYERS
+                },
+                epsilon: EPSILON,
+            };
 
-        instance.agent = Some(agent);
+            //TODO: 1. call the NFT's and retrieve the tensors
+            //      2. create an agent for each player
+            
+            let mut agent = DqnAgent::new(&options);
+
+            agent.load(&TENSORS.to_vec())?;
+
+            agents.push(agent);
+        }
+
+        instance.agents = Some(agents);
 
         // start match
         instance.state.status = InstanceStatus::STARTED;
@@ -184,7 +184,7 @@ impl InstancesService {
 
         let game = &mut instance.game;
         let mut renderer = NullRenderer::new();
-        let agent = instance.agent.as_mut().unwrap();
+        let agents = instance.agents.as_mut().unwrap();
         
         let mut steps = 0;
         let mut running = true;
@@ -193,7 +193,7 @@ impl InstancesService {
         let obs = &game.reset(&mut renderer, rng);
         for i in 0..game.options.num_players {
             let steps_per_thought = rng.gen_range(1000..10000);
-            players.push(Player {
+            players.push(InstancePlayer {
                 active: true,
                 last_thought: 0,
                 steps_per_thought,
@@ -218,7 +218,7 @@ impl InstancesService {
                     if player.last_thought >= player.steps_per_thought {
                         player.last_thought = 0;
 
-                        actions[p] = match agent.choose_action(player.obs.clone(), rng) {
+                        actions[p] = match agents[p].choose_action(player.obs.clone(), rng) {
                             Some(action) => Some(action),
                             None => Some(game.random_action(rng)),
                         };
