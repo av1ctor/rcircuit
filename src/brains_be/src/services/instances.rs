@@ -53,7 +53,10 @@ impl InstancesService {
             Some(e) => e.clone()
         };
 
-        Ok(instance.game.get_assets(asset_canister_url))
+        Ok(instance.game.get_assets(
+            asset_canister_url,
+            &instance.state.players
+        ))
     }
 
     pub fn create(
