@@ -125,12 +125,16 @@ impl InstancesService {
         let mut agents = vec![];
 
         for player in &instance.state.players {
+            if player.nft.num_hidden_layers != 1 {
+                return Err(format!("Only 1 hidden layer supported. Found: {}", player.nft.num_hidden_layers));
+            }
+            
             // create the agent
             let options = BaseAgentOptions { 
                 dqn: DqnOptions {
                     n_actions: instance.game.get_num_actions(),
                     n_obs: instance.game.get_num_obs(),
-                    n_hidden: player.nft.hidden_layers
+                    n_hidden: player.nft.hidden_layers_weights_size[0]
                 },
                 epsilon: player.nft.epsilon as _,
             };
