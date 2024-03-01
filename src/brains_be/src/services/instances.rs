@@ -191,13 +191,12 @@ impl InstancesService {
 
         let mut players = vec![];
         let obs = &game.reset(&mut renderer, rng);
-        for i in 0..game.options.num_players {
+        for (i, inst_player) in instance.state.players.iter().enumerate() {
 
-            let steps_per_thought = rng.gen_range(1000..10000);
             players.push(Player {
                 active: true,
                 last_thought: 0,
-                steps_per_thought,
+                steps_per_thought: inst_player.nft.steps_per_thought as _,
                 obs: obs[i].to_owned().into(),
             });
         }
