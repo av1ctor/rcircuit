@@ -130,9 +130,9 @@ impl InstancesService {
                 dqn: DqnOptions {
                     n_actions: instance.game.get_num_actions(),
                     n_obs: instance.game.get_num_obs(),
-                    n_hidden: player.nft.token_data.hidden_layers
+                    n_hidden: player.nft.hidden_layers
                 },
-                epsilon: player.nft.token_data.epsilon as _,
+                epsilon: player.nft.epsilon as _,
             };
 
             let mut agent = DqnAgent::new(&options);

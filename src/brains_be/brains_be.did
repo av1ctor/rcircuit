@@ -46,7 +46,8 @@ type InitArg = record {
 type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
 type InstancePlayer = record {
   id : principal;
-  nft : Nft;
+  nft : Nas1Token;
+  nft_col : NftCollectionMetadata;
   tensors : vec record { text; vec nat8 };
 };
 type InstanceRunResponse = record {
@@ -70,9 +71,12 @@ type Nas1Token = record {
   xp : nat64;
   height : float32;
   model : text;
+  image_url : text;
   traits : vec text;
+  name : text;
   hidden_layers : nat64;
   extra : vec record { text; Nas1Value };
+  model_url : text;
   epsilon : float32;
   radius : float32;
   steps_per_thought : nat64;
@@ -87,14 +91,14 @@ type Nas1Value = variant {
   Float : float32;
   Array : vec Nas1Value;
 };
-type Nft = record {
+type NftCollectionMetadata = record {
   std : NftStandard;
-  token_id : nat;
-  canister_id : principal;
-  collection_data : Nas1Collection;
-  token_data : Nas1Token;
+  desc : text;
+  logo : text;
+  name : text;
+  nas1 : Nas1Collection;
 };
-type NftStandard = variant { ICRC1 };
+type NftStandard = variant { ICRC7 };
 type Pagination = record { offset : nat32; limit : nat32 };
 type Result = variant { Ok : GameInfoResponse; Err : text };
 type Result_1 = variant { Ok : text; Err : text };
