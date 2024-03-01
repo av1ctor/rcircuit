@@ -20,15 +20,35 @@ type GameInfo = record {
   description : text;
   max_players : nat64;
   version : float32;
+  animations : vec text;
   assets_url : text;
   category : text;
+  skills : vec text;
 };
 type GameInfoResponse = record { info : GameInfo };
+type HashMap = vec record {
+  text;
+  variant {
+    Int : int;
+    Map : HashMap;
+    Nat : nat;
+    Blob : vec nat8;
+    Text : text;
+    Double : float64;
+    Float : float32;
+    Array : vec Nas1Value;
+  };
+};
 type InitArg = record {
   controllers : vec ControllerRequest;
   asset_canister_url : text;
 };
 type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
+type InstancePlayer = record {
+  id : principal;
+  nft : Nft;
+  tensors : vec record { text; vec nat8 };
+};
 type InstanceRunResponse = record {
   won_at : opt nat64;
   won_by : opt principal;
@@ -39,6 +59,42 @@ type InstanceStep = record {
   timedout : bool;
 };
 type InstanceStepsResponse = record { steps : vec InstanceStep };
+type Nas1Collection = record {
+  assets_canister_id : principal;
+  version : float32;
+  animations : vec text;
+  assets_url : text;
+  skills : vec text;
+};
+type Nas1Token = record {
+  xp : nat64;
+  height : float32;
+  model : text;
+  traits : vec text;
+  hidden_layers : nat64;
+  extra : vec record { text; Nas1Value };
+  epsilon : float32;
+  radius : float32;
+  steps_per_thought : nat64;
+};
+type Nas1Value = variant {
+  Int : int;
+  Map : HashMap;
+  Nat : nat;
+  Blob : vec nat8;
+  Text : text;
+  Double : float64;
+  Float : float32;
+  Array : vec Nas1Value;
+};
+type Nft = record {
+  std : NftStandard;
+  token_id : nat;
+  canister_id : principal;
+  collection_data : Nas1Collection;
+  token_data : Nas1Token;
+};
+type NftStandard = variant { ICRC1 };
 type Pagination = record { offset : nat32; limit : nat32 };
 type Result = variant { Ok : GameInfoResponse; Err : text };
 type Result_1 = variant { Ok : text; Err : text };
@@ -52,5 +108,5 @@ service : (InitArg) -> {
   instance_get_assets : (text) -> (Result_2) query;
   instance_get_steps : (text, Pagination) -> (Result_3) query;
   instance_run : (text) -> (Result_4);
-  instance_start : (text, vec principal) -> (Result_5);
+  instance_start : (text, vec InstancePlayer) -> (Result_5);
 }
