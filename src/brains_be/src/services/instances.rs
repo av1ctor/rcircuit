@@ -55,7 +55,9 @@ impl InstancesService {
 
         Ok(instance.game.get_assets(
             asset_canister_url,
-            &instance.state.players
+            &instance.state.players.iter()
+                .map(|p| p.nft.model_url.clone())
+                .collect()
         ))
     }
 
