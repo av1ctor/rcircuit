@@ -1,19 +1,26 @@
 use std::{collections::{HashMap, HashSet}, f32::consts::PI};
 use brains_engine::{
     consts, 
-    game::{Game, GameOptions, LevelOptions}, 
+    game::{Game, GameOptions, MapInfo, MAPS}, 
     map::Map, 
     player::PlayerFOV
 };
 use candid::Principal;
 use neuralarena_cdk::{
-    agent::{agent::Agent, baseagent::BaseAgentOptions, dqnagent::DqnAgent}, 
+    agent::{
+        agent::Agent, baseagent::BaseAgentOptions, 
+        dqnagent::DqnAgent
+    }, 
     db::traits::crud::{Crud, Pagination}, 
     dqn::dqn::DqnOptions, 
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        instance::{InstanceId, InstanceRunResponse, InstanceStep, InstancePlayer}
+        game::GameMapId, 
+        instance::{
+            InstanceId, InstancePlayer, 
+            InstanceRunResponse, InstanceStep
+        }
     }, 
     nn::tensor::Tensor,
 };
@@ -28,9 +35,6 @@ use super::controllers::ControllersService;
 const PLAYER_FOV_RAYS: usize = 15;
 const PLAYER_FOV_ANGLE: f32 = PI;
 const PLAYER_RADIUS: f32 = 0.5;
-
-const MAP: &[u8] = include_bytes!("../../maps/map-no-tex.glb");
-const NAVMESH: &[u8] = include_bytes!("../../maps/navmesh.bin");
 
 struct Player {
     active: bool,
@@ -55,6 +59,7 @@ impl InstancesService {
 
         Ok(instance.game.get_assets(
             asset_canister_url,
+            instance.game.map_info.map_id,
             &instance.state.players.iter()
                 .map(|p| p.nft.model_url.clone())
                 .collect()
@@ -63,18 +68,30 @@ impl InstancesService {
 
     pub fn create(
         id: &InstanceId,
+        map_id: GameMapId,
         options: HashMap<String, String>,
         db: &mut DB,
         caller: &Principal
     ) -> Result<(), String> {
         Self::authorize(caller, db)?;
 
+        let map = if map_id < consts::NUM_MAPS {
+            Map::new(
+                MAPS[map_id].map, 
+                MAPS[map_id].navmesh,
+            )
+        }
+        else {
+            return Err(format!("Unknown map {}", map_id));
+        };
+
         let game = Game::new(
-            Map::new(MAP, NAVMESH),
+            map,
+            MapInfo {
+                map_id,
+                ..Default::default()
+            },
             GameOptions {
-                level: LevelOptions {
-                    num: 0
-                },
                 fov: PlayerFOV { 
                     rays: PLAYER_FOV_RAYS, 
                     angle: PLAYER_FOV_ANGLE, 

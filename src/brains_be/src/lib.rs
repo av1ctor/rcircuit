@@ -7,10 +7,10 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        game::{GameInfo, GameInfoResponse},
+        game::{GameInfo, GameInfoResponse, GameMap},
         instance::{
-            InstanceId, InstanceOptions, InstanceAssetsResponse, 
-            InstanceRunResponse, InstanceStepsResponse, InstancePlayer
+            InstanceAssetsResponse, InstanceId, InstanceOptions, 
+            InstancePlayer, InstanceRunResponse, InstanceStepsResponse
         },
     },
     utils::{
@@ -162,13 +162,22 @@ pub fn game_get_info(
             version: 0.1,
             description: "Eat brains and win the game!".to_string(),
             category: "Zombies".to_string(),
+            image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
             skills: SKILLS.iter().map(|s| s.to_string()).collect(),
             animations: ANIMATIONS.iter().map(|a| a.to_string()).collect(),
-            assets_url: asset_canister_url.clone(),
             engine_wasm_url: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
-            image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
+            assets_url: asset_canister_url.clone(),
+            maps: vec![
+                GameMap { 
+                    id: consts::MAP_ID_CONTAINERS, 
+                    name: "Containers".to_string(), 
+                    description: "A labirynth of containers".to_string(), 
+                    version: 0.1, 
+                    image_url: "".to_string(), 
+                }
+            ],
         }
     });
 
@@ -179,6 +188,7 @@ pub fn game_get_info(
 
 #[ic_cdk::update]
 pub fn instance_create(
+    map_id: usize,
     options: InstanceOptions
 ) -> Result<InstanceId, String> {
     let caller = caller();
@@ -187,6 +197,7 @@ pub fn instance_create(
         let id = uniqueid::generate();
         match InstancesService::create(
             &id, 
+            map_id,
             options,
             &mut db.borrow_mut(), 
             &caller

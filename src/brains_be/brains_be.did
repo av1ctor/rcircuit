@@ -1,5 +1,5 @@
 type Asset = record { typ : AssetType; data : vec record { text; AssetValue } };
-type AssetType = variant { Npc; Level; Object; Player };
+type AssetType = variant { Map; Npc; Object; Player };
 type AssetValue = variant {
   F32 : float32;
   U32 : nat32;
@@ -15,6 +15,7 @@ type ControllerRequest = record {
 type GameInfo = record {
   min_players : nat64;
   image_url : text;
+  maps : vec GameMap;
   name : text;
   engine_wasm_url : text;
   description : text;
@@ -26,6 +27,13 @@ type GameInfo = record {
   skills : vec text;
 };
 type GameInfoResponse = record { info : GameInfo };
+type GameMap = record {
+  id : nat64;
+  image_url : text;
+  name : text;
+  description : text;
+  version : float32;
+};
 type HashMap = vec record {
   text;
   variant {
@@ -74,11 +82,12 @@ type Nas1Token = record {
   image_url : text;
   traits : vec text;
   name : text;
-  hidden_layers : nat64;
+  num_hidden_layers : nat64;
   extra : vec record { text; Nas1Value };
   model_url : text;
   epsilon : float32;
   radius : float32;
+  hidden_layers_weights_size : vec nat64;
   steps_per_thought : nat64;
 };
 type Nas1Value = variant {
@@ -108,7 +117,7 @@ type Result_4 = variant { Ok : InstanceRunResponse; Err : text };
 type Result_5 = variant { Ok; Err : text };
 service : (InitArg) -> {
   game_get_info : () -> (Result) query;
-  instance_create : (vec record { text; text }) -> (Result_1);
+  instance_create : (nat64, vec record { text; text }) -> (Result_1);
   instance_get_assets : (text) -> (Result_2) query;
   instance_get_steps : (text, Pagination) -> (Result_3) query;
   instance_run : (text) -> (Result_4);
