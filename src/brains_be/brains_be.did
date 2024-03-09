@@ -12,6 +12,11 @@ type ControllerRequest = record {
   name : text;
   description : opt text;
 };
+type GameEndCredits = record {
+  sub : vec GameEndCredits;
+  title : text;
+  people : vec record { text; text };
+};
 type GameInfo = record {
   min_players : nat64;
   image_url : text;
@@ -109,17 +114,19 @@ type NftCollectionMetadata = record {
 };
 type NftStandard = variant { ICRC7 };
 type Pagination = record { offset : nat32; limit : nat32 };
-type Result = variant { Ok : GameInfoResponse; Err : text };
-type Result_1 = variant { Ok : text; Err : text };
-type Result_2 = variant { Ok : InstanceAssetsResponse; Err : text };
-type Result_3 = variant { Ok : InstanceStepsResponse; Err : text };
-type Result_4 = variant { Ok : InstanceRunResponse; Err : text };
-type Result_5 = variant { Ok; Err : text };
+type Result = variant { Ok : GameEndCredits; Err : text };
+type Result_1 = variant { Ok : GameInfoResponse; Err : text };
+type Result_2 = variant { Ok : text; Err : text };
+type Result_3 = variant { Ok : InstanceAssetsResponse; Err : text };
+type Result_4 = variant { Ok : InstanceStepsResponse; Err : text };
+type Result_5 = variant { Ok : InstanceRunResponse; Err : text };
+type Result_6 = variant { Ok; Err : text };
 service : (InitArg) -> {
-  game_get_info : () -> (Result) query;
-  instance_create : (nat64, vec record { text; text }) -> (Result_1);
-  instance_get_assets : (text) -> (Result_2) query;
-  instance_get_steps : (text, Pagination) -> (Result_3) query;
-  instance_run : (text) -> (Result_4);
-  instance_start : (text, vec InstancePlayer) -> (Result_5);
+  game_get_end_credits : () -> (Result) query;
+  game_get_info : () -> (Result_1) query;
+  instance_create : (nat64, vec record { text; text }) -> (Result_2);
+  instance_get_assets : (text) -> (Result_3) query;
+  instance_get_steps : (text, Pagination) -> (Result_4) query;
+  instance_run : (text) -> (Result_5);
+  instance_start : (text, vec InstancePlayer) -> (Result_6);
 }

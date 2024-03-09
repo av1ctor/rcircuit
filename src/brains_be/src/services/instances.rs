@@ -148,7 +148,10 @@ impl InstancesService {
 
         for player in &instance.state.players {
             if player.nft.num_hidden_layers != 1 {
-                return Err(format!("Only 1 hidden layer supported. Found: {}", player.nft.num_hidden_layers));
+                return Err(format!(
+                    "Only 1 hidden layer supported. Found: {}", 
+                    player.nft.num_hidden_layers
+                ));
             }
             
             // create the agent

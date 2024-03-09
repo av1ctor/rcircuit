@@ -7,7 +7,7 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        game::{GameInfo, GameInfoResponse, GameMap},
+        game::{GameInfo, GameInfoResponse, GameMap, GameEndCredits},
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
             InstancePlayer, InstanceRunResponse, InstanceStepsResponse
@@ -183,6 +183,70 @@ pub fn game_get_info(
 
     Ok(GameInfoResponse{
         info
+    })
+}
+
+#[ic_cdk::query]
+pub fn game_get_end_credits(
+) -> Result<GameEndCredits, String> {
+    Ok(GameEndCredits {
+        title: "Brains".to_string(),
+        people: vec![],
+        sub: vec![
+            GameEndCredits { 
+                title: "💻 Programming 💻".to_string(), 
+                people: vec![
+                    ("Main Developer".to_string(), "ANDRÉ VICENTINI".to_string()),
+                    ("Additional dev".to_string(), "ME, AGAIN".to_string()),
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🧸 Graphics 🧸".to_string(), 
+                people: vec![
+                    ("3D Modeler".to_string(), "ANDRÉ VICENTINI".to_string())
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🎆 Game Design 🎆".to_string(), 
+                people: vec![
+                    ("Main".to_string(), "ANDRÉ VICENTINI".to_string())
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🎶 Music 🎶".to_string(), 
+                people: vec![
+                    ("Composer".to_string(), "Unknown".to_string())
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🧨 Sound Effects 🧨".to_string(), 
+                people: vec![
+                    ("Composer".to_string(), "Unknown".to_string())
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🔬 Quality Assurance 🔬".to_string(), 
+                people: vec![
+                    ("Director".to_string(), "Unknown".to_string()),
+                    ("Tester".to_string(), "Unknown".to_string())
+                ], 
+                sub: vec![] 
+            },
+            GameEndCredits { 
+                title: "🎉 Special Thanks 🎉".to_string(), 
+                people: vec![
+                    ("Foo foo".to_string(), "Bar bar".to_string()),
+                    ("Bar bar".to_string(), "Baz Baz".to_string()),
+                    ("Baz baz".to_string(), "Foo foo".to_string()),
+                ], 
+                sub: vec![] 
+            }
+        ],
     })
 }
 
