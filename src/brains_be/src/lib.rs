@@ -196,22 +196,22 @@ pub fn game_get_end_credits(
             GameEndCredits { 
                 title: "💻 Programming 💻".to_string(), 
                 people: vec![
-                    ("Main Developer".to_string(), "ANDRÉ VICENTINI".to_string()),
-                    ("Additional dev".to_string(), "ME, AGAIN".to_string()),
+                    ("Main Developer".to_string(), "André Vicentini".to_string()),
+                    ("Additional dev".to_string(), "Me, Again".to_string()),
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🧸 Graphics 🧸".to_string(), 
                 people: vec![
-                    ("3D Modeler".to_string(), "ANDRÉ VICENTINI".to_string())
+                    ("3D Modeler".to_string(), "André Vicentini".to_string())
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🎆 Game Design 🎆".to_string(), 
                 people: vec![
-                    ("Main".to_string(), "ANDRÉ VICENTINI".to_string())
+                    ("Main".to_string(), "André Vicentini".to_string())
                 ], 
                 sub: vec![] 
             },
