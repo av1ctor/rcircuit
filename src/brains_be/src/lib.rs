@@ -162,7 +162,7 @@ pub fn game_get_info(
             version: 0.1,
             description: "Eat brains and win the game!".to_string(),
             category: "Zombies".to_string(),
-            image_url: "https://www.digitaltrends.com/wp-content/uploads/2021/03/best-zombie-games-for-xbox-one.jpg?p=1".to_string(),
+            image_url: asset_canister_url.replace("{}", "cover.jpg"),
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
             skills: SKILLS.iter().map(|s| s.to_string()).collect(),
