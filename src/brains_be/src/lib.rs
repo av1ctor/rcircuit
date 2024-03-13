@@ -36,7 +36,7 @@ const ANIMATIONS: &[&str] = &[
     "idle",
     "walking",
     "celebrating",
-    "bitting",
+    "attacking",
     "hit",
     "dying",
     "dead",
