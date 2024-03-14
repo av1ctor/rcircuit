@@ -26,5 +26,14 @@
       },
       "ignore": false,
       "allow_raw_access": false
+    },
+    {
+      "match": "scenes/*",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "max-age=21600"
+      },
+      "ignore": false,
+      "allow_raw_access": false
     }
   ]

@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::HashMap};
 use crate::db::DB;
 use brains_engine::consts;
 use candid::{CandidType, Principal};
@@ -7,7 +7,7 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        game::{GameInfo, GameInfoResponse, GameMap, GameEndCredits},
+        game::{GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameURLs},
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
             InstancePlayer, InstanceRunResponse, InstanceStepsResponse
@@ -157,18 +157,25 @@ pub fn game_get_info(
 ) -> Result<GameInfoResponse, String> {
     let info = STATE.with(|state| {
         let asset_canister_url = &state.borrow().asset_canister_url;
+        let scenes = HashMap::from([
+            ("start", asset_canister_url.replace("{}", "scenes/start.glb"))
+        ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
+        
         GameInfo {
             name: "Braaains".to_string(),
             version: 0.1,
             description: "Eat brains and win the game!".to_string(),
             category: "Zombies".to_string(),
-            image_url: asset_canister_url.replace("{}", "cover.jpg"),
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
+            urls: GameURLs{
+                 cover: asset_canister_url.replace("{}", "cover.jpg"),
+                 engine_wasm: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
+                 assets: asset_canister_url.clone(),
+                 scenes
+            },
             skills: SKILLS.iter().map(|s| s.to_string()).collect(),
             animations: ANIMATIONS.iter().map(|a| a.to_string()).collect(),
-            engine_wasm_url: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
-            assets_url: asset_canister_url.clone(),
             maps: vec![
                 GameMap { 
                     id: consts::MAP_ID_CONTAINERS, 
