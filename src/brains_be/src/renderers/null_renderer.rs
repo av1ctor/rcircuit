@@ -1,4 +1,4 @@
-use brains_engine::entity::EntityState;
+use brains_engine::entities::EntityState;
 use neuralarena_cdk::models::{
     renderer::{ModelRef, Renderer},
     assets::{Asset, AssetRef}
