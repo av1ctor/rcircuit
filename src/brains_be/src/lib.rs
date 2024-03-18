@@ -158,7 +158,8 @@ pub fn game_get_info(
     let info = STATE.with(|state| {
         let asset_canister_url = &state.borrow().asset_canister_url;
         let scenes = HashMap::from([
-            ("start", asset_canister_url.replace("{}", "scenes/start.glb"))
+            ("start", asset_canister_url.replace("{}", "scenes/start.glb")),
+            ("intro", asset_canister_url.replace("{}", "scenes/intro/intro.gltf")),
         ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
         
         GameInfo {
