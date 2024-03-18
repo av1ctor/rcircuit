@@ -28,7 +28,7 @@
       "allow_raw_access": false
     },
     {
-      "match": "scenes/*",
+      "match": "scenes/**/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Cache-Control": "max-age=21600"
