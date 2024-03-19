@@ -3,7 +3,7 @@ use brains_engine::engine::Game;
 use candid::{CandidType, Principal};
 use neuralarena_cdk::{
     agent::dqnagent::DqnAgent, 
-    models::instance::{InstancePlayer, InstanceStep}
+    models::instance::{InstancePlayer, InstanceRunSlice, InstanceStep}
 };
 use serde::{Serialize, Deserialize};
 
@@ -24,6 +24,7 @@ pub struct InstanceState {
     pub players: Vec<InstancePlayer>,
     pub steps: Vec<InstanceStep>,
     pub step: usize,
+    pub slices: Vec<InstanceRunSlice>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -58,6 +59,7 @@ impl Instance {
                 players: vec![],
                 steps: vec![],
                 step: 0,
+                slices: vec![],
             },
             game,
             agents: None,

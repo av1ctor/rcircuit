@@ -18,12 +18,11 @@ use neuralarena_cdk::{
         env::Env, 
         game::GameMapId, 
         instance::{
-            InstanceId, InstancePlayer, InstanceRunRequest, 
-            InstanceRunResponse, InstanceStep
+            InstanceId, InstancePlayer, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
         }
     }
 };
-use rand::{rngs::StdRng, Rng};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::{
     models::instance::{Instance, InstanceStatus}, 
     renderers::null_renderer::NullRenderer,
@@ -176,7 +175,6 @@ impl InstancesService {
         id: &InstanceId,
         req: &InstanceRunRequest,
         db: &mut DB,
-        rng: &mut StdRng,
         caller: &Principal
     ) -> Result<InstanceRunResponse, String> {
         Self::authorize(caller, db)?;
@@ -197,7 +195,14 @@ impl InstancesService {
             return Err("Invalid instance state".to_string());
         }
 
+        inst.state.slices.push(InstanceRunSlice {
+            first_step: inst.state.step,
+            seed: req.seed,
+        });
+
         inst.state.status = InstanceStatus::RUNNING;
+
+        let rng = &mut StdRng::seed_from_u64(req.seed);
 
         let game = &mut inst.game;
         let mut renderer = NullRenderer::new();

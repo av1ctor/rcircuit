@@ -302,15 +302,12 @@ pub fn instance_run(
     req: InstanceRunRequest
 ) -> Result<InstanceRunResponse, String> {
     DB.with(|db| {
-        random::get().with(|rng| {
-            InstancesService::run(
-                &id,
-                &req, 
-                &mut db.borrow_mut(), 
-                &mut rng.borrow_mut().as_mut().unwrap(), 
-                &caller()
-            )
-        })
+        InstancesService::run(
+            &id,
+            &req, 
+            &mut db.borrow_mut(), 
+            &caller()
+        )
     })
 }
 
