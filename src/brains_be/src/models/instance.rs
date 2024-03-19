@@ -19,8 +19,11 @@ pub enum InstanceStatus {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct InstanceState {
     pub status: InstanceStatus,
+    pub terminated: bool,
+    pub timedout: bool,
     pub players: Vec<InstancePlayer>,
     pub steps: Vec<InstanceStep>,
+    pub step: usize,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -50,8 +53,11 @@ impl Instance {
             options, 
             state: InstanceState { 
                 status: InstanceStatus::CREATED,
+                terminated: false,
+                timedout: false,
                 players: vec![],
                 steps: vec![],
+                step: 0,
             },
             game,
             agents: None,

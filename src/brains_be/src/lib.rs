@@ -10,7 +10,8 @@ use neuralarena_cdk::{
         game::{GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameURLs},
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
-            InstancePlayer, InstanceRunResponse, InstanceStepsResponse
+            InstancePlayer, InstanceRunRequest, InstanceRunResponse, 
+            InstanceStepsResponse
         },
     },
     utils::{
@@ -281,12 +282,12 @@ pub fn instance_create(
 }
 
 #[ic_cdk::update]        
-pub fn instance_start(
+pub fn instance_setup(
     id: InstanceId,
     players: Vec<InstancePlayer>
 ) -> Result<(), String> {     
     DB.with(|db| {
-        InstancesService::start(
+        InstancesService::setup(
             id, 
             players,
             &mut db.borrow_mut(), 
@@ -297,12 +298,14 @@ pub fn instance_start(
 
 #[ic_cdk::update]
 pub fn instance_run(
-    id: InstanceId
+    id: InstanceId,
+    req: InstanceRunRequest
 ) -> Result<InstanceRunResponse, String> {
     DB.with(|db| {
         random::get().with(|rng| {
             InstancesService::run(
-                &id, 
+                &id,
+                &req, 
                 &mut db.borrow_mut(), 
                 &mut rng.borrow_mut().as_mut().unwrap(), 
                 &caller()

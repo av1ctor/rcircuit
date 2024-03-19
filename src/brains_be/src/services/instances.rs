@@ -18,11 +18,10 @@ use neuralarena_cdk::{
         env::Env, 
         game::GameMapId, 
         instance::{
-            InstanceId, InstancePlayer, 
+            InstanceId, InstancePlayer, InstanceRunRequest, 
             InstanceRunResponse, InstanceStep
         }
-    }, 
-    nn::tensor::Tensor,
+    }
 };
 use rand::{rngs::StdRng, Rng};
 use crate::{
@@ -36,12 +35,6 @@ const PLAYER_FOV_RAYS: usize = 15;
 const PLAYER_FOV_ANGLE: f32 = PI;
 const PLAYER_RADIUS: f32 = 0.5;
 
-struct Player {
-    active: bool,
-    last_thought: u32,
-    steps_per_thought: u32,
-    obs: Tensor,
-}
 pub struct InstancesService {}
 
 impl InstancesService {
@@ -107,17 +100,17 @@ impl InstancesService {
         );
 
         
-        let instance = Instance::new(
+        let inst = Instance::new(
             id, 
             options, 
             game,
             caller
         );
     
-        db.instances.borrow_mut().insert(id.clone(), instance)
+        db.instances.borrow_mut().insert(id.clone(), inst)
     }
 
-    pub fn start(
+    pub fn setup(
         id: InstanceId,
         players: Vec<InstancePlayer>,
         db: &mut DB,
@@ -127,7 +120,7 @@ impl InstancesService {
         
         let mut instances = db.instances.borrow_mut();
 
-        let mut instance = match instances.find_by_id(&id) {
+        let mut inst = match instances.find_by_id(&id) {
             None => return Err("Not found".to_string()),
             Some(e) => e.clone()
         };
@@ -136,17 +129,17 @@ impl InstancesService {
             return Err("Too few players".to_string());
         }
 
-        if instance.state.status != InstanceStatus::CREATED {
+        if inst.state.status != InstanceStatus::CREATED {
             return Err("Invalid instance state".to_string());
         }
 
         // update game
-        instance.game.options.num_players = players.len();
-        instance.state.players = players;
+        inst.game.options.num_players = players.len();
+        inst.state.players = players;
 
         let mut agents = vec![];
 
-        for player in &instance.state.players {
+        for player in &inst.state.players {
             if player.nft.num_hidden_layers != 1 {
                 return Err(format!(
                     "Only 1 hidden layer supported. Found: {}", 
@@ -157,8 +150,8 @@ impl InstancesService {
             // create the agent
             let options = BaseAgentOptions { 
                 dqn: DqnOptions {
-                    n_actions: instance.game.get_num_actions(),
-                    n_obs: instance.game.get_num_obs(),
+                    n_actions: inst.game.get_num_actions(),
+                    n_obs: inst.game.get_num_obs(),
                     n_hidden: player.nft.hidden_layers_weights_size[0]
                 },
                 epsilon: player.nft.epsilon as _,
@@ -171,16 +164,17 @@ impl InstancesService {
             agents.push(agent);
         }
 
-        instance.agents = Some(agents);
+        inst.agents = Some(agents);
 
         // start match
-        instance.state.status = InstanceStatus::STARTED;
+        inst.state.status = InstanceStatus::STARTED;
 
-        instances.update(id.clone(), instance)
+        instances.update(id.clone(), inst)
     }
 
     pub fn run(
         id: &InstanceId,
+        req: &InstanceRunRequest,
         db: &mut DB,
         rng: &mut StdRng,
         caller: &Principal
@@ -189,58 +183,51 @@ impl InstancesService {
         
         let mut instances = db.instances.borrow_mut();
 
-        let mut instance = match instances.find_by_id(id) {
+        let mut inst = match instances.find_by_id(id) {
             None => return Err("Not found".to_string()),
             Some(e) => e.clone()
         };
 
-        if instance.state.players.len() < consts::MIN_PLAYERS {
+        if inst.state.players.len() < consts::MIN_PLAYERS {
             return Err("Too few players".to_string());
         }
 
-        if instance.state.status != InstanceStatus::STARTED {
+        if inst.state.status != InstanceStatus::STARTED &&
+            inst.state.status != InstanceStatus::RUNNING {
             return Err("Invalid instance state".to_string());
         }
 
-        instance.state.status = InstanceStatus::RUNNING;
+        inst.state.status = InstanceStatus::RUNNING;
 
-        let game = &mut instance.game;
+        let game = &mut inst.game;
         let mut renderer = NullRenderer::new();
-        let agents = instance.agents.as_mut().unwrap();
+        let agents = inst.agents.as_mut().unwrap();
         
-        let mut steps = 0;
-        let mut running = true;
-
-        let mut players = vec![];
-        let obs = &game.reset(&mut renderer, rng);
-        for (i, inst_player) in instance.state.players.iter().enumerate() {
-
-            players.push(Player {
-                active: true,
-                last_thought: 0,
-                steps_per_thought: inst_player.nft.steps_per_thought as _,
-                obs: obs[i].to_owned().into(),
-            });
+        if inst.state.step == 0 {
+            let obs = &game.reset(&mut renderer, rng);
+            for (i, player) in &mut inst.state.players.iter_mut().enumerate() {
+                player.state.obs = obs[i].clone();
+            }
         }
 
         let pre = ic_cdk::api::performance_counter(0);
 
-        while running && steps < game.options.max_steps {
-
+        while inst.state.step < game.options.max_steps {
             let mut actions = vec![None; game.options.num_players];
 
             let players_idx = Self::shuffle_players_idx(game, rng);
             
             for i in 0..game.options.num_players {
                 let p = players_idx[i];
-                let player = &mut players[p];
+                let player = &mut inst.state.players[p];
                 
-                if player.active {
-                    player.last_thought += 1000;
-                    if player.last_thought >= player.steps_per_thought {
-                        player.last_thought = 0;
+                if player.state.active {
+                    player.state.last_thought += 1000;
+                    if player.state.last_thought >= player.nft.steps_per_thought {
+                        player.state.last_thought = 0;
 
-                        actions[p] = match agents[p].choose_action(player.obs.clone(), rng) {
+                        actions[p] = match agents[p].choose_action(
+                            player.state.obs.clone().into(), rng) {
                             Some(action) => Some(action),
                             None => Some(game.random_action(rng)),
                         };
@@ -249,44 +236,64 @@ impl InstancesService {
             }
 
             let step = game.step(&actions, 1.0, &mut renderer, rng);
-            steps += 1;
 
             let entities = game.serialize_entities()?;
             let events = game.serialize_events()?;
 
-            instance.state.steps.push(InstanceStep {
-                terminated: step.terminated,
-                timedout: step.timedout,
+            inst.state.terminated = step.terminated;
+            inst.state.timedout = step.timedout;
+
+            inst.state.steps.push(InstanceStep {
                 entities,
                 events,
             });
 
-            running = !step.terminated && !step.timedout;
-
             if let Some(winner) = step.winner {
-                instance.won_by = Some(instance.state.players[winner].id.clone());
-                instance.won_at = Some(ic_cdk::api::time());
+                inst.won_by = Some(inst.state.players[winner].id.clone());
+                inst.won_at = Some(ic_cdk::api::time());
+                inst.state.terminated = true;
             }
 
             for i in 0..step.players.len() {
-                players[i].active = step.players[i].active;
-                players[i].obs = step.players[i].obs.to_owned().into();
+                inst.state.players[i].state.active = step.players[i].active;
+                inst.state.players[i].state.obs = step.players[i].obs.clone();
             }
 
             game.render(&mut renderer, true);
+
+            if inst.state.terminated || inst.state.timedout {
+                break;
+            }
+
+            if ic_cdk::api::performance_counter(0) - pre >= req.max_instructions {
+                break;
+            }
+
+            inst.state.step += 1;
         }
 
-        instance.state.status = InstanceStatus::FINISHED;
+        if inst.state.step >= game.options.max_steps {
+            inst.state.timedout = true;
+        }
+        
+        if inst.state.terminated || 
+            inst.state.timedout || 
+            inst.won_by.is_some() {
+            inst.state.status = InstanceStatus::FINISHED;
+        }
 
         let post = ic_cdk::api::performance_counter(0);
         ic_cdk::print((post - pre).to_string());
 
         let res = InstanceRunResponse {
-            won_at: instance.won_at.clone(),
-            won_by: instance.won_by.clone(),
+            terminated: inst.state.terminated,
+            timedout: inst.state.timedout,
+            steps: inst.state.step,
+            won_at: inst.won_at.clone(),
+            won_by: inst.won_by.clone(),
         };
 
-        instances.update(id.to_owned(), instance)?;
+        instances.update(id.to_owned(), inst)?;
 
         Ok(res)
     }
