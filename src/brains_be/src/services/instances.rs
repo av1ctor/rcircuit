@@ -90,7 +90,6 @@ impl InstancesService {
                     max_dist: 2.5,
                 },
                 min_keys: 4,
-                max_steps: 60 * 60 * 2,
                 num_players: 0,
                 player_radius: PLAYER_RADIUS,
                 debug: false,
@@ -217,7 +216,7 @@ impl InstancesService {
 
         let pre = ic_cdk::api::performance_counter(0);
 
-        while inst.state.step < game.options.max_steps {
+        while inst.state.step < req.max_steps {
             let mut actions = vec![None; game.options.num_players];
 
             let players_idx = Self::shuffle_players_idx(game, rng);
@@ -246,7 +245,6 @@ impl InstancesService {
             let events = game.serialize_events()?;
 
             inst.state.terminated = step.terminated;
-            inst.state.timedout = step.timedout;
 
             inst.state.steps.push(InstanceStep {
                 entities,
@@ -277,7 +275,7 @@ impl InstancesService {
             inst.state.step += 1;
         }
 
-        if inst.state.step >= game.options.max_steps {
+        if inst.state.step >= req.max_steps {
             inst.state.timedout = true;
         }
         
