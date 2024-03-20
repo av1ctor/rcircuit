@@ -53,7 +53,7 @@ impl InstancesService {
             asset_canister_url,
             instance.game.map_info.map_id,
             &instance.state.players.iter()
-                .map(|p| p.nft.model_url.clone())
+                .map(|p| p.nft.props.model_url.clone())
                 .collect()
         ))
     }
@@ -139,10 +139,10 @@ impl InstancesService {
         let mut agents = vec![];
 
         for player in &inst.state.players {
-            if player.nft.num_hidden_layers != 1 {
+            if player.nft.props.num_hidden_layers != 1 {
                 return Err(format!(
                     "Only 1 hidden layer supported. Found: {}", 
-                    player.nft.num_hidden_layers
+                    player.nft.props.num_hidden_layers
                 ));
             }
             
@@ -151,9 +151,9 @@ impl InstancesService {
                 dqn: DqnOptions {
                     n_actions: inst.game.get_num_actions(),
                     n_obs: inst.game.get_num_obs(),
-                    n_hidden: player.nft.hidden_layers_weights_size[0]
+                    n_hidden: player.nft.props.hidden_layers_weights_size[0]
                 },
-                epsilon: player.nft.epsilon as _,
+                epsilon: player.nft.props.epsilon as _,
             };
 
             let mut agent = DqnAgent::new(&options);
@@ -228,7 +228,7 @@ impl InstancesService {
                 
                 if player.state.active {
                     player.state.last_thought += 1000;
-                    if player.state.last_thought >= player.nft.steps_per_thought {
+                    if player.state.last_thought >= player.nft.props.steps_per_thought {
                         player.state.last_thought = 0;
 
                         actions[p] = match agents[p].choose_action(
