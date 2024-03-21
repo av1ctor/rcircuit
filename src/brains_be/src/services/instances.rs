@@ -166,7 +166,7 @@ impl InstancesService {
         inst.agents = Some(agents);
 
         // start match
-        inst.state.status = InstanceStatus::STARTED;
+        inst.state.status = InstanceStatus::RUNNING;
 
         instances.update(id.clone(), inst)
     }
@@ -190,8 +190,7 @@ impl InstancesService {
             return Err("Too few players".to_string());
         }
 
-        if inst.state.status != InstanceStatus::STARTED &&
-            inst.state.status != InstanceStatus::RUNNING {
+        if inst.state.status != InstanceStatus::RUNNING {
             return Err("Invalid instance state".to_string());
         }
 
@@ -353,7 +352,7 @@ impl InstancesService {
             Some(e) => e
         };
 
-        if ![InstanceStatus::STARTED, InstanceStatus::FINISHED]
+        if ![InstanceStatus::RUNNING, InstanceStatus::FINISHED]
             .contains(&instance.state.status) {
             return Err("Invalid instance state".to_string());
         }

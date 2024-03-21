@@ -10,7 +10,6 @@ use serde::{Serialize, Deserialize};
 #[derive(PartialEq, Clone, Serialize, Deserialize, CandidType)]
 pub enum InstanceStatus {
     CREATED,
-    STARTED,
     RUNNING,
     CANCELLED,
     FINISHED,
