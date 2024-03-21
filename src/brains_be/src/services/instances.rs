@@ -18,7 +18,8 @@ use neuralarena_cdk::{
         env::Env, 
         game::GameMapId, 
         instance::{
-            InstanceId, InstancePlayer, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
+            InstanceId, InstancePlayer, InstanceRunRequest, 
+            InstanceRunResponse, InstanceRunSlice, InstanceStep
         }
     }
 };
@@ -214,7 +215,7 @@ impl InstancesService {
             }
         }
 
-        let pre = ic_cdk::api::performance_counter(0);
+        let begin_t = ic_cdk::api::performance_counter(0);
 
         while inst.state.step < req.max_steps {
             let mut actions = vec![None; game.options.num_players];
@@ -268,7 +269,7 @@ impl InstancesService {
                 break;
             }
 
-            if ic_cdk::api::performance_counter(0) - pre >= req.max_instructions {
+            if ic_cdk::api::performance_counter(0) - begin_t >= req.max_instructions {
                 break;
             }
 
@@ -285,8 +286,8 @@ impl InstancesService {
             inst.state.status = InstanceStatus::FINISHED;
         }
 
-        let post = ic_cdk::api::performance_counter(0);
-        ic_cdk::print((post - pre).to_string());
+        let end_t = ic_cdk::api::performance_counter(0);
+        ic_cdk::print((end_t - begin_t).to_string());
 
         let res = InstanceRunResponse {
             terminated: inst.state.terminated,
