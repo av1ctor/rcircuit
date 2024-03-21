@@ -18,8 +18,7 @@ use neuralarena_cdk::{
         env::Env, 
         game::GameMapId, 
         instance::{
-            InstanceId, InstancePlayer, InstanceRunRequest, 
-            InstanceRunResponse, InstanceRunSlice, InstanceStep
+            InstanceId, InstancePlayer, InstancePlayerEntity, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
         }
     }
 };
@@ -97,7 +96,6 @@ impl InstancesService {
                 training: false,
             }
         );
-
         
         let inst = Instance::new(
             id, 
@@ -217,20 +215,22 @@ impl InstancesService {
         let begin_t = ic_cdk::api::performance_counter(0);
 
         while inst.state.step < req.max_steps {
-            let mut actions = vec![None; game.options.num_players];
+            let mut actions = vec![(0usize, None); game.options.num_players];
 
             let players_idx = Self::shuffle_players_idx(game, rng);
             
             for i in 0..game.options.num_players {
                 let p = players_idx[i];
                 let player = &mut inst.state.players[p];
+
+                actions[i].0 = p;
                 
                 if player.state.active {
                     player.state.last_thought += 1000;
                     if player.state.last_thought >= player.nft.props.steps_per_thought {
                         player.state.last_thought = 0;
 
-                        actions[p] = match agents[p].choose_action(
+                        actions[i].1 = match agents[p].choose_action(
                             player.state.obs.clone().into(), rng) {
                             Some(action) => Some(action),
                             None => Some(game.random_action(rng)),
@@ -257,9 +257,13 @@ impl InstancesService {
                 inst.state.terminated = true;
             }
 
-            for i in 0..step.players.len() {
-                inst.state.players[i].state.active = step.players[i].active;
-                inst.state.players[i].state.obs = step.players[i].obs.clone();
+            for (i, player) in step.players.iter().enumerate() {
+                let inst_player = &mut inst.state.players[i];
+
+                inst_player.state.active = player.active;
+                inst_player.state.obs = player.obs.clone();
+                inst_player.state.score = game.entities.players[i].num_brains as _;
+                inst_player.state.health = game.entities.players[i].health;
             }
 
             game.render(&mut renderer, true);
@@ -292,6 +296,12 @@ impl InstancesService {
             terminated: inst.state.terminated,
             timedout: inst.state.timedout,
             steps: inst.state.step,
+            players: inst.state.players.iter()
+                .map(|p| InstancePlayerEntity {
+                    health: p.state.health, 
+                    score: p.state.score
+                })
+                .collect(),
             won_at: inst.won_at.clone(),
             won_by: inst.won_by.clone(),
         };
