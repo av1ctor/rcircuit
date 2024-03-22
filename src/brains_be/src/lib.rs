@@ -184,7 +184,7 @@ pub fn game_get_info(
                     name: "Containers".to_string(), 
                     description: "A labirynth of containers".to_string(), 
                     version: 0.1, 
-                    image_url: "".to_string(), 
+                    image_url: asset_canister_url.replace("{}", &format!("maps/{}/cover.jpg", consts::MAP_ID_CONTAINERS)),
                 }
             ],
         }
