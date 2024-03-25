@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use brains_engine::engine::Game;
+use rcircuit_engine::engine::Game;
 use candid::{CandidType, Principal};
 use neuralarena_cdk::{
     agent::dqnagent::DqnAgent, 

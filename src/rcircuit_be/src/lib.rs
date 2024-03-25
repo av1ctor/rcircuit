@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap};
 use crate::db::DB;
-use brains_engine::consts;
+use rcircuit_engine::consts;
 use candid::{CandidType, Principal};
 use ic_cdk::{api::stable, caller, trap};
 use models::controller::{Controller, ControllerRequest};
@@ -164,10 +164,10 @@ pub fn game_get_info(
         ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
         
         GameInfo {
-            name: "Braaains".to_string(),
+            name: "Rusty Circuit".to_string(),
             version: 0.1,
-            description: "Eat brains and win the game!".to_string(),
-            category: "Zombies".to_string(),
+            description: "Try to beat your enemies - and the tetanus!".to_string(),
+            category: "Post apocalyptic".to_string(),
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
             urls: GameURLs{
@@ -199,7 +199,7 @@ pub fn game_get_info(
 pub fn game_get_end_credits(
 ) -> Result<GameEndCredits, String> {
     Ok(GameEndCredits {
-        title: "Brains".to_string(),
+        title: "Rusty Circuit".to_string(),
         people: vec![],
         sub: vec![
             GameEndCredits { 

@@ -1,15 +1,15 @@
 {
   "canisters": {
-    "brains_be": {
-      "candid": "src/brains_be/brains_be.did",
-      "package": "brains_be",
+    "rcircuit_be": {
+      "candid": "src/rcircuit_be/rcircuit_be.did",
+      "package": "rcircuit_be",
       "type": "rust",
       "optimize": "O4",
       "gzip": true
     },
-    "brains_fe": {
+    "rcircuit_fe": {
       "source": [
-        "src/brains_fe/assets"
+        "src/rcircuit_fe/assets"
       ],
       "type": "assets",
       "gzip": true

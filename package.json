@@ -1,16 +1,16 @@
 {
-  "name": "assets",
+  "name": "rcircuit-assets",
   "version": "0.0.1",
   "type": "module",
-  "description": "Brains assets",
+  "description": "Rusty Circuit game assets",
   "scripts": {
     "build": "./scripts/dev/01-build-fe.sh",
     "prebuild": "dfx generate",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
     "deploy:backend:dev": "./scripts/dev/00-deploy-be.sh && npm run extract && npm run generate",
-    "extract": "candid-extractor target/wasm32-unknown-unknown/release/brains_be.wasm >./src/brains_be/brains_be.did",
-    "generate": "dfx generate brains_be"
+    "extract": "candid-extractor target/wasm32-unknown-unknown/release/rcircuit_be.wasm >./src/rcircuit_be/rcircuit_be.did",
+    "generate": "dfx generate rcircuit_be"
   },
   "dependencies": {
   },

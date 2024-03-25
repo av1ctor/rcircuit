@@ -2,7 +2,7 @@
 resolver = "2"
 
 members = [
-    "src/brains_be",
+    "src/rcircuit_be",
 ]
 
 [profile.dev]
