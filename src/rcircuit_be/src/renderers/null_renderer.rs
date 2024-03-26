@@ -87,6 +87,12 @@ impl Renderer<EntityState> for NullRenderer {
     ) {
     }
 
+    fn update(
+        &mut self,
+        _delta_time: f32
+    ) {
+    }
+
     fn render(
         &mut self
     ) {

@@ -168,6 +168,7 @@ pub fn game_get_info(
             version: 0.1,
             description: "Try to beat your enemies - and the tetanus!".to_string(),
             category: "Post apocalyptic".to_string(),
+            fps: consts::FPS as _,
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
             urls: GameURLs{

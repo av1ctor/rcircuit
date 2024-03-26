@@ -1,9 +1,9 @@
 use std::{collections::{HashMap, HashSet}, f32::consts::PI};
 use rcircuit_engine::{
-    consts, 
+    consts::{self, FPS}, 
     engine::{Game, GameOptions, MapInfo, MAPS}, 
-    map::Map, 
-    entities::PlayerFOV
+    entities::PlayerFOV, 
+    map::Map
 };
 use candid::Principal;
 use neuralarena_cdk::{
@@ -18,7 +18,9 @@ use neuralarena_cdk::{
         env::Env, 
         game::GameMapId, 
         instance::{
-            InstanceId, InstancePlayer, InstancePlayerEntity, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
+            InstanceId, InstancePlayer, InstancePlayerEntity, 
+            InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, 
+            InstanceStep
         }
     }
 };
@@ -266,7 +268,7 @@ impl InstancesService {
                 inst_player.state.health = game.entities.players[i].health;
             }
 
-            game.render(&mut renderer, true);
+            game.render(&mut renderer, 1000.0 / FPS as f32);
 
             if inst.state.terminated || inst.state.timedout {
                 break;
