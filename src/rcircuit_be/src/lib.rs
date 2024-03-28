@@ -7,7 +7,7 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        game::{GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameURLs},
+        game::{GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameURLs},
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
             InstancePlayer, InstanceRunRequest, InstanceRunResponse, 
@@ -30,6 +30,8 @@ mod services;
 mod renderers;
 
 const STATE_VERSION: f32 = 0.1;
+
+const COST_TO_PLAY: u128 = (0.01 * 1_00000000.0) as _;
 const SKILLS: &[&str] = &[
     "seek-target"
 ];
@@ -171,6 +173,9 @@ pub fn game_get_info(
             fps: consts::FPS as _,
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
+            costs: GameCosts { 
+                to_play: GameCost::ICP(COST_TO_PLAY)
+            },
             urls: GameURLs{
                  cover: asset_canister_url.replace("{}", "cover.jpg"),
                  engine_wasm: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
