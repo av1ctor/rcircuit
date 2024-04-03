@@ -4305,11 +4305,11 @@
     "images": [
         {
             "mimeType": "image/png",
-            "uri": "baseColor_1.png"
+            "uri": "textures/baseColor_1.png"
         },
         {
             "mimeType": "image/png",
-            "uri": "normal_1.png"
+            "uri": "textures/normal_1.png"
         }
     ],
     "buffers": [

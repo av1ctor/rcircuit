@@ -7,7 +7,10 @@ use models::controller::{Controller, ControllerRequest};
 use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
-        game::{GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameURLs},
+        game::{
+            GameCost, GameCosts, GameEndCredits, GameInfo, 
+            GameInfoResponse, GameMap, GameSfx, GameURLs
+        },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
             InstancePlayer, InstanceRunRequest, InstanceRunResponse, 
@@ -35,7 +38,7 @@ const COST_TO_PLAY: u128 = (0.01 * 1_00000000.0) as _;
 const SKILLS: &[&str] = &[
     "seek-target"
 ];
-const ANIMATIONS: &[&str] = &[
+const STATES: &[&str] = &[
     "idle",
     "walking",
     "celebrating",
@@ -155,15 +158,85 @@ fn post_upgrade() {
     random::init();
 }
 
+fn get_sfx_sets(
+    asset_canister_url: &String
+) -> Vec<HashMap<String, GameSfx>> {
+    vec![
+        HashMap::from([
+            (
+                "punching".to_string(), 
+                GameSfx { 
+                    url: asset_canister_url.replace("{}", "sfxs/npcs/man/punching.ogg"),
+                    repeat: false, 
+                    rate: None, 
+                    detune: None 
+                }
+            ),
+            (
+                "hit".to_string(), 
+                GameSfx { 
+                    url: asset_canister_url.replace("{}", "sfxs/npcs/man/hit.ogg"),
+                    repeat: false, 
+                    rate: None, 
+                    detune: None 
+                }
+            ),
+            (
+                "dying".to_string(), 
+                GameSfx { 
+                    url: asset_canister_url.replace("{}", "sfxs/npcs/man/dying.ogg"),
+                    repeat: false, 
+                    rate: None, 
+                    detune: None 
+                }
+            ),
+        ])
+    ]
+}
+
+fn get_maps(
+    asset_canister_url: &String
+) -> Vec<GameMap> {
+    vec![
+        GameMap { 
+            id: consts::MAP_ID_CONTAINERS, 
+            name: "Containers".to_string(), 
+            description: "An arena of containers".to_string(), 
+            version: 0.1, 
+            image_url: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_CONTAINERS)),
+            music_url: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)),
+        }
+    ]
+}
+
+fn get_urls(
+    asset_canister_url: &String
+) -> GameURLs {
+    let scenes = HashMap::from([
+        ("start", asset_canister_url.replace("{}", "scenes/start/start.gltf")),
+        ("intro", asset_canister_url.replace("{}", "scenes/intro/intro.gltf")),
+    ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
+
+    GameURLs{
+        cover: asset_canister_url.replace("{}", "cover.jpg"),
+        engine_wasm: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
+        assets: asset_canister_url.clone(),
+        scenes
+   }
+}
+
+fn get_costs(
+) -> GameCosts {
+    GameCosts { 
+        to_play: GameCost::ICP(COST_TO_PLAY)
+    }
+}
+
 #[ic_cdk::query]
 pub fn game_get_info(
 ) -> Result<GameInfoResponse, String> {
     let info = STATE.with(|state| {
         let asset_canister_url = &state.borrow().asset_canister_url;
-        let scenes = HashMap::from([
-            ("start", asset_canister_url.replace("{}", "scenes/start/start.gltf")),
-            ("intro", asset_canister_url.replace("{}", "scenes/intro/intro.gltf")),
-        ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
         
         GameInfo {
             name: "Rusty Circuit".to_string(),
@@ -173,26 +246,12 @@ pub fn game_get_info(
             fps: consts::FPS as _,
             min_players: consts::MIN_PLAYERS, 
             max_players: consts::MAX_PLAYERS,
-            costs: GameCosts { 
-                to_play: GameCost::ICP(COST_TO_PLAY)
-            },
-            urls: GameURLs{
-                 cover: asset_canister_url.replace("{}", "cover.jpg"),
-                 engine_wasm: asset_canister_url.replace("{}", "wasm/game-engine_bg.wasm"),
-                 assets: asset_canister_url.clone(),
-                 scenes
-            },
+            costs: get_costs(),
+            urls: get_urls(asset_canister_url),
             skills: SKILLS.iter().map(|s| s.to_string()).collect(),
-            animations: ANIMATIONS.iter().map(|a| a.to_string()).collect(),
-            maps: vec![
-                GameMap { 
-                    id: consts::MAP_ID_CONTAINERS, 
-                    name: "Containers".to_string(), 
-                    description: "A labirynth of containers".to_string(), 
-                    version: 0.1, 
-                    image_url: asset_canister_url.replace("{}", &format!("maps/{}/cover.jpg", consts::MAP_ID_CONTAINERS)),
-                }
-            ],
+            states: STATES.iter().map(|a| a.to_string()).collect(),
+            sfx_sets: get_sfx_sets(asset_canister_url),
+            maps: get_maps(asset_canister_url),
         }
     });
 
@@ -322,11 +381,14 @@ pub fn instance_get_assets(
     id: InstanceId
 ) -> Result<InstanceAssetsResponse, String> {
     STATE.with(|state| {
+        let asset_canister_url = &state.borrow().asset_canister_url;
+        
         DB.with(|db| {
             match InstancesService::get_assets(
                 &db.borrow(), 
                 id, 
-                &state.borrow().asset_canister_url
+                asset_canister_url,
+                &get_sfx_sets(asset_canister_url)
             ) {
                 Ok(assets) => Ok(InstanceAssetsResponse {
                     assets

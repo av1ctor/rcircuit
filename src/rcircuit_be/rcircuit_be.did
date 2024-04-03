@@ -2,7 +2,9 @@ type Asset = record { typ : AssetType; data : vec record { text; AssetValue } };
 type AssetType = variant { Map; Npc; Object; Player };
 type AssetValue = variant {
   F32 : float32;
+  Map : HashMap;
   U32 : nat32;
+  Vec : vec AssetValue;
   Bool : bool;
   None;
   Text : text;
@@ -12,22 +14,25 @@ type ControllerRequest = record {
   name : text;
   description : opt text;
 };
+type GameCost = variant { ICP : nat; USD : nat64 };
+type GameCosts = record { to_play : GameCost };
 type GameEndCredits = record {
   sub : vec GameEndCredits;
   title : text;
   people : vec record { text; text };
 };
 type GameInfo = record {
+  fps : nat32;
+  states : vec text;
   min_players : nat64;
-  image_url : text;
+  sfx_sets : vec vec record { text; GameSfx };
   maps : vec GameMap;
   name : text;
-  engine_wasm_url : text;
+  costs : GameCosts;
+  urls : GameURLs;
   description : text;
   max_players : nat64;
   version : float32;
-  animations : vec text;
-  assets_url : text;
   category : text;
   skills : vec text;
 };
@@ -38,12 +43,37 @@ type GameMap = record {
   name : text;
   description : text;
   version : float32;
+  music_url : text;
+};
+type GameSfx = record {
+  url : text;
+  repeat : bool;
+  rate : opt float32;
+  detune : opt float32;
+};
+type GameURLs = record {
+  engine_wasm : text;
+  scenes : vec record { text; text };
+  cover : text;
+  assets : text;
 };
 type HashMap = vec record {
   text;
   variant {
-    Int : int;
+    F32 : float32;
     Map : HashMap;
+    U32 : nat32;
+    Vec : vec AssetValue;
+    Bool : bool;
+    None;
+    Text : text;
+  };
+};
+type HashMap_1 = vec record {
+  text;
+  variant {
+    Int : int;
+    Map : HashMap_1;
     Nat : nat;
     Blob : vec nat8;
     Text : text;
@@ -59,24 +89,45 @@ type InitArg = record {
 type InstanceAssetsResponse = record { assets : vec record { nat64; Asset } };
 type InstancePlayer = record {
   id : principal;
-  nft : Nas1Token;
+  nft : InstancePlayerNft;
+  state : InstancePlayerState;
   nft_col : NftCollectionMetadata;
   tensors : vec record { text; vec nat8 };
 };
+type InstancePlayerEntity = record { score : float32; health : float32 };
+type InstancePlayerNft = record {
+  token_id : nat;
+  collection_id : principal;
+  props : Nas1Token;
+};
+type InstancePlayerState = record {
+  obs : vec float32;
+  active : bool;
+  last_thought : nat64;
+  score : float32;
+  health : float32;
+};
+type InstanceRunRequest = record {
+  seed : nat64;
+  max_steps : nat64;
+  slice : nat64;
+  max_instructions : nat64;
+};
 type InstanceRunResponse = record {
+  terminated : bool;
+  steps : nat64;
+  players : vec InstancePlayerEntity;
   won_at : opt nat64;
   won_by : opt principal;
-};
-type InstanceStep = record {
-  terminated : bool;
-  events : vec nat8;
   timedout : bool;
 };
+type InstanceStep = record { entities : vec nat8; events : vec nat8 };
 type InstanceStepsResponse = record { steps : vec InstanceStep };
 type Nas1Collection = record {
+  states : vec text;
+  sfx_sets : vec vec record { text; GameSfx };
   assets_canister_id : principal;
   version : float32;
-  animations : vec text;
   assets_url : text;
   skills : vec text;
 };
@@ -93,11 +144,12 @@ type Nas1Token = record {
   epsilon : float32;
   radius : float32;
   hidden_layers_weights_size : vec nat64;
+  sfx_set : nat64;
   steps_per_thought : nat64;
 };
 type Nas1Value = variant {
   Int : int;
-  Map : HashMap;
+  Map : HashMap_1;
   Nat : nat;
   Blob : vec nat8;
   Text : text;
@@ -127,6 +179,6 @@ service : (InitArg) -> {
   instance_create : (nat64, vec record { text; text }) -> (Result_2);
   instance_get_assets : (text) -> (Result_3) query;
   instance_get_steps : (text, Pagination) -> (Result_4) query;
-  instance_run : (text) -> (Result_5);
-  instance_start : (text, vec InstancePlayer) -> (Result_6);
+  instance_run : (text, InstanceRunRequest) -> (Result_5);
+  instance_setup : (text, vec InstancePlayer) -> (Result_6);
 }

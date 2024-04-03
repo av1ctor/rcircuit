@@ -16,7 +16,7 @@ use neuralarena_cdk::{
     models::{
         assets::{Asset, AssetRef}, 
         env::Env, 
-        game::GameMapId, 
+        game::{GameMapId, GameSfx}, 
         instance::{
             InstanceId, InstancePlayer, InstancePlayerEntity, 
             InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, 
@@ -42,7 +42,8 @@ impl InstancesService {
     pub fn get_assets(
         db: &DB,
         id: InstanceId,
-        asset_canister_url: &String
+        asset_canister_url: &String,
+        game_sfx_sets: &Vec<HashMap<String, GameSfx>>
     ) -> Result<HashMap<AssetRef, Asset>, String> {
         let instances = db.instances.borrow_mut();
 
@@ -54,9 +55,8 @@ impl InstancesService {
         Ok(instance.game.get_assets(
             asset_canister_url,
             instance.game.map_info.map_id,
-            &instance.state.players.iter()
-                .map(|p| p.nft.props.model_url.clone())
-                .collect()
+            &instance.state.players.iter().map(|p| Some(p)).collect(),
+            Some(game_sfx_sets)
         ))
     }
 
