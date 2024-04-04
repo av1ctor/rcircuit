@@ -8,8 +8,7 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         game::{
-            GameCost, GameCosts, GameEndCredits, GameInfo, 
-            GameInfoResponse, GameMap, GameSfx, GameURLs
+            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapUrls, GameSfx, GameURLs
         },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
@@ -52,6 +51,7 @@ const STATES: &[&str] = &[
 struct State {
     owner: Option<Principal>,
     asset_canister_url: String,
+    info: Option<GameInfo>,
 }
 
 thread_local! {
@@ -75,6 +75,21 @@ fn init(
         let mut state = r.borrow_mut();
         state.owner = Some(caller());
         state.asset_canister_url = arg.asset_canister_url.clone();
+        state.info = Some(GameInfo {
+            name: "Rusty Circuit".to_string(),
+            version: 0.1,
+            description: "Try to beat your enemies - and the tetanus!".to_string(),
+            category: "Post apocalyptic".to_string(),
+            fps: consts::FPS as _,
+            min_players: consts::MIN_PLAYERS, 
+            max_players: consts::MAX_PLAYERS,
+            costs: get_costs(),
+            urls: get_urls(&arg.asset_canister_url),
+            skills: SKILLS.iter().map(|s| s.to_string()).collect(),
+            states: STATES.iter().map(|a| a.to_string()).collect(),
+            sfx_sets: get_sfx_sets(&arg.asset_canister_url),
+            maps: get_maps(&arg.asset_canister_url),
+        });
     });
 
     random::init();
@@ -203,8 +218,11 @@ fn get_maps(
             name: "Containers".to_string(), 
             description: "An arena of containers".to_string(), 
             version: 0.1, 
-            image_url: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_CONTAINERS)),
-            music_url: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)),
+            urls: GameMapUrls { 
+                model: asset_canister_url.replace("{}", &format!("maps/{}/map.gltf", consts::MAP_ID_CONTAINERS)), 
+                image: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_CONTAINERS)), 
+                music: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)), 
+            }
         }
     ]
 }
@@ -236,23 +254,7 @@ fn get_costs(
 pub fn game_get_info(
 ) -> Result<GameInfoResponse, String> {
     let info = STATE.with(|state| {
-        let asset_canister_url = &state.borrow().asset_canister_url;
-        
-        GameInfo {
-            name: "Rusty Circuit".to_string(),
-            version: 0.1,
-            description: "Try to beat your enemies - and the tetanus!".to_string(),
-            category: "Post apocalyptic".to_string(),
-            fps: consts::FPS as _,
-            min_players: consts::MIN_PLAYERS, 
-            max_players: consts::MAX_PLAYERS,
-            costs: get_costs(),
-            urls: get_urls(asset_canister_url),
-            skills: SKILLS.iter().map(|s| s.to_string()).collect(),
-            states: STATES.iter().map(|a| a.to_string()).collect(),
-            sfx_sets: get_sfx_sets(asset_canister_url),
-            maps: get_maps(asset_canister_url),
-        }
+        state.borrow().info.as_ref().unwrap().clone()
     });
 
     Ok(GameInfoResponse{
@@ -381,14 +383,13 @@ pub fn instance_get_assets(
     id: InstanceId
 ) -> Result<InstanceAssetsResponse, String> {
     STATE.with(|state| {
-        let asset_canister_url = &state.borrow().asset_canister_url;
+        let info = &state.borrow().info.as_ref().unwrap().clone();
         
         DB.with(|db| {
             match InstancesService::get_assets(
                 &db.borrow(), 
                 id, 
-                asset_canister_url,
-                &get_sfx_sets(asset_canister_url)
+                info
             ) {
                 Ok(assets) => Ok(InstanceAssetsResponse {
                     assets

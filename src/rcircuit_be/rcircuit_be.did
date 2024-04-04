@@ -39,12 +39,12 @@ type GameInfo = record {
 type GameInfoResponse = record { info : GameInfo };
 type GameMap = record {
   id : nat64;
-  image_url : text;
   name : text;
+  urls : GameMapUrls;
   description : text;
   version : float32;
-  music_url : text;
 };
+type GameMapUrls = record { model : text; music : text; image : text };
 type GameSfx = record {
   url : text;
   repeat : bool;
