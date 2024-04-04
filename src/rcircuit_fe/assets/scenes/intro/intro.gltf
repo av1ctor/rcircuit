@@ -3623,79 +3623,79 @@
   "images": [
     {
       "name": "Image_2",
-      "uri": "intro_img0.png"
+      "uri": "textures/intro_img0.png"
     },
     {
       "name": "Image_1",
-      "uri": "intro_img1.png"
+      "uri": "textures/intro_img1.png"
     },
     {
       "name": "Image_0",
-      "uri": "intro_img2.png"
+      "uri": "textures/intro_img2.png"
     },
     {
       "name": "Image_3",
-      "uri": "intro_img3.png"
+      "uri": "textures/intro_img3.png"
     },
     {
       "name": "Image_2-1",
-      "uri": "intro_img4.png"
+      "uri": "textures/intro_img4.png"
     },
     {
       "name": "Image_29",
-      "uri": "intro_img5.png"
+      "uri": "textures/intro_img5.png"
     },
     {
       "name": "Image_1-1",
-      "uri": "intro_img6.png"
+      "uri": "textures/intro_img6.png"
     },
     {
       "name": "Image_0-1",
-      "uri": "intro_img7.png"
+      "uri": "textures/intro_img7.png"
     },
     {
       "name": "Image_28",
-      "uri": "intro_img8.png"
+      "uri": "textures/intro_img8.png"
     },
     {
       "name": "Image_19",
-      "uri": "intro_img9.png"
+      "uri": "textures/intro_img9.png"
     },
     {
       "name": "Image_18",
-      "uri": "intro_img10.png"
+      "uri": "textures/intro_img10.png"
     },
     {
       "name": "Image_16",
-      "uri": "intro_img11.png"
+      "uri": "textures/intro_img11.png"
     },
     {
       "name": "Image_17",
-      "uri": "intro_img12.png"
+      "uri": "textures/intro_img12.png"
     },
     {
       "name": "Image_7",
-      "uri": "intro_img13.png"
+      "uri": "textures/intro_img13.png"
     },
     {
       "name": "Image_6",
-      "uri": "intro_img14.png"
+      "uri": "textures/intro_img14.png"
     },
     {
       "name": "Image_5",
-      "uri": "intro_img15.png"
+      "uri": "textures/intro_img15.png"
     },
     {
       "name": "Image_4",
-      "uri": "intro_img16.png"
+      "uri": "textures/intro_img16.png"
     },
     {
       "name": "normal_1",
-      "uri": "intro_img17.png"
+      "uri": "textures/intro_img17.png"
     },
     {
       "name": "baseColor_1",
-      "uri": "intro_img18.png"
+      "uri": "textures/intro_img18.png"
     }
   ],
   "skins": [

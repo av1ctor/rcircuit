@@ -45,6 +45,7 @@ type GameMap = record {
   version : float32;
 };
 type GameMapUrls = record { model : text; music : text; image : text };
+type GameSceneURLs = record { model : text; music : opt text };
 type GameSfx = record {
   url : text;
   repeat : bool;
@@ -53,7 +54,7 @@ type GameSfx = record {
 };
 type GameURLs = record {
   engine_wasm : text;
-  scenes : vec record { text; text };
+  scenes : vec record { text; GameSceneURLs };
   cover : text;
   assets : text;
 };

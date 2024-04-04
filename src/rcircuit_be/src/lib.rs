@@ -8,7 +8,7 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         game::{
-            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapUrls, GameSfx, GameURLs
+            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
         },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
@@ -231,9 +231,15 @@ fn get_urls(
     asset_canister_url: &String
 ) -> GameURLs {
     let scenes = HashMap::from([
-        ("start", asset_canister_url.replace("{}", "scenes/start/start.gltf")),
-        ("intro", asset_canister_url.replace("{}", "scenes/intro/intro.gltf")),
-    ]).iter().map(|e| (e.0.to_string(), e.1.to_string())).collect();
+        ("start", GameSceneURLs {
+            model: asset_canister_url.replace("{}", "scenes/start/start.gltf"),
+            music: None,
+        }),
+        ("intro", GameSceneURLs {
+            model: asset_canister_url.replace("{}", "scenes/intro/intro.gltf"),
+            music: Some(asset_canister_url.replace("{}", "scenes/intro/voltaire.ogg")),
+        }),
+    ]).iter().map(|e| (e.0.to_string(), e.1.clone())).collect();
 
     GameURLs{
         cover: asset_canister_url.replace("{}", "cover.jpg"),
