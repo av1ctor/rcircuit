@@ -8,7 +8,8 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         game::{
-            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
+            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, 
+            GameMap, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
         },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
@@ -75,21 +76,7 @@ fn init(
         let mut state = r.borrow_mut();
         state.owner = Some(caller());
         state.asset_canister_url = arg.asset_canister_url.clone();
-        state.info = Some(GameInfo {
-            name: "Rusty Circuit".to_string(),
-            version: 0.1,
-            description: "Try to beat your enemies - and the tetanus!".to_string(),
-            category: "Post apocalyptic".to_string(),
-            fps: consts::FPS as _,
-            min_players: consts::MIN_PLAYERS, 
-            max_players: consts::MAX_PLAYERS,
-            costs: get_costs(),
-            urls: get_urls(&arg.asset_canister_url),
-            skills: SKILLS.iter().map(|s| s.to_string()).collect(),
-            states: STATES.iter().map(|a| a.to_string()).collect(),
-            sfx_sets: get_sfx_sets(&arg.asset_canister_url),
-            maps: get_maps(&arg.asset_canister_url),
-        });
+        state.info = Some(get_info(&state.asset_canister_url));
     });
 
     random::init();
@@ -149,8 +136,9 @@ fn post_upgrade() {
             STATE_VERSION, 
             &mut reader
         ) {
-            Ok(s_) => {
-                cell.replace(s_);
+            Ok(mut state) => {
+                state.info = Some(get_info(&state.asset_canister_url));
+                cell.replace(state);
             }
             Err(err) => {
                 trap(&format!(
@@ -233,7 +221,7 @@ fn get_urls(
     let scenes = HashMap::from([
         ("start", GameSceneURLs {
             model: asset_canister_url.replace("{}", "scenes/start/start.gltf"),
-            music: None,
+            music: Some(asset_canister_url.replace("{}", "scenes/start/countdown.ogg")),
         }),
         ("intro", GameSceneURLs {
             model: asset_canister_url.replace("{}", "scenes/intro/intro.gltf"),
@@ -253,6 +241,26 @@ fn get_costs(
 ) -> GameCosts {
     GameCosts { 
         to_play: GameCost::ICP(COST_TO_PLAY)
+    }
+}
+
+fn get_info(
+    asset_canister_url: &String
+) -> GameInfo {
+    GameInfo {
+        name: "Rusty Circuit".to_string(),
+        version: 0.1,
+        description: "Try to beat your enemies - and the tetanus!".to_string(),
+        category: "Post apocalyptic".to_string(),
+        fps: consts::FPS as _,
+        min_players: consts::MIN_PLAYERS, 
+        max_players: consts::MAX_PLAYERS,
+        costs: get_costs(),
+        urls: get_urls(asset_canister_url),
+        skills: SKILLS.iter().map(|s| s.to_string()).collect(),
+        states: STATES.iter().map(|a| a.to_string()).collect(),
+        sfx_sets: get_sfx_sets(asset_canister_url),
+        maps: get_maps(asset_canister_url),
     }
 }
 
