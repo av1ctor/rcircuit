@@ -8,8 +8,7 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         game::{
-            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, 
-            GameMap, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
+            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapMusicUrls, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
         },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
@@ -209,7 +208,11 @@ fn get_maps(
             urls: GameMapUrls { 
                 model: asset_canister_url.replace("{}", &format!("maps/{}/map.gltf", consts::MAP_ID_CONTAINERS)), 
                 image: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_CONTAINERS)), 
-                music: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)), 
+                music: GameMapMusicUrls {
+                    main: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)),
+                    victory: asset_canister_url.replace("{}", "songs/victory.ogg"),
+                    over: asset_canister_url.replace("{}", "songs/victory.ogg"),
+                }, 
             }
         }
     ]
