@@ -8,7 +8,9 @@ use neuralarena_cdk::{
     db::traits::crud::Pagination, 
     models::{
         game::{
-            GameCost, GameCosts, GameEndCredits, GameInfo, GameInfoResponse, GameMap, GameMapMusicUrls, GameMapUrls, GameSceneURLs, GameSfx, GameURLs
+            GameCost, GameCosts, GameEndCredits, GameInfo, 
+            GameInfoResponse, GameMap, GameMapMusicUrls, 
+            GameMapUrls, GameRewards, GameSceneURLs, GameSfx, GameURLs
         },
         instance::{
             InstanceAssetsResponse, InstanceId, InstanceOptions, 
@@ -34,6 +36,7 @@ mod renderers;
 const STATE_VERSION: f32 = 0.1;
 
 const COST_TO_PLAY: u128 = (0.01 * 1_00000000.0) as _;
+const WINNER_REWARD: u128 = 25; // * 100
 const SKILLS: &[&str] = &[
     "seek-target"
 ];
@@ -243,7 +246,14 @@ fn get_urls(
 fn get_costs(
 ) -> GameCosts {
     GameCosts { 
-        to_play: GameCost::ICP(COST_TO_PLAY)
+        to_play: GameCost::ICP(COST_TO_PLAY),
+    }
+}
+
+fn get_rewards(
+) -> GameRewards {
+    GameRewards { 
+        winner: WINNER_REWARD,
     }
 }
 
@@ -252,13 +262,15 @@ fn get_info(
 ) -> GameInfo {
     GameInfo {
         name: "Rusty Circuit".to_string(),
+        subtitle: "Try to beat your enemies - and skip the tetanus!".to_string(),
         version: 0.1,
-        description: "Try to beat your enemies - and the tetanus!".to_string(),
+        description: "Please note: this is a prototype for testing and demonstration only. Currently, free CC0 3d models, music and sound-effects are being used, but most of it will be replaced when the final version is released in future.".to_string(),
         category: "Post apocalyptic".to_string(),
         fps: consts::FPS as _,
         min_players: consts::MIN_PLAYERS, 
         max_players: consts::MAX_PLAYERS,
         costs: get_costs(),
+        rewards: get_rewards(),
         urls: get_urls(asset_canister_url),
         skills: SKILLS.iter().map(|s| s.to_string()).collect(),
         states: STATES.iter().map(|a| a.to_string()).collect(),
@@ -290,14 +302,14 @@ pub fn game_get_end_credits(
                 title: "💻 Programming 💻".to_string(), 
                 people: vec![
                     ("Main Developer".to_string(), "André Vicentini".to_string()),
-                    ("Additional dev".to_string(), "Me, Again".to_string()),
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🧸 Graphics 🧸".to_string(), 
                 people: vec![
-                    ("3D Modeler".to_string(), "André Vicentini".to_string())
+                    ("NPC models".to_string(), "mixamo.com".to_string()),
+                    ("Map assets".to_string(), "sketchfab.com".to_string()),
                 ], 
                 sub: vec![] 
             },
@@ -311,31 +323,28 @@ pub fn game_get_end_credits(
             GameEndCredits { 
                 title: "🎶 Music 🎶".to_string(), 
                 people: vec![
-                    ("Composer".to_string(), "Unknown".to_string())
+                    ("Map 0 composer".to_string(), "pixabay.com".to_string())
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🧨 Sound Effects 🧨".to_string(), 
                 people: vec![
-                    ("Composer".to_string(), "Unknown".to_string())
+                    ("Composer".to_string(), "pixabay.com".to_string())
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🔬 Quality Assurance 🔬".to_string(), 
                 people: vec![
-                    ("Director".to_string(), "Unknown".to_string()),
-                    ("Tester".to_string(), "Unknown".to_string())
+                    ("Director".to_string(), "Michelle Luna".to_string()),
                 ], 
                 sub: vec![] 
             },
             GameEndCredits { 
                 title: "🎉 Special Thanks 🎉".to_string(), 
                 people: vec![
-                    ("Foo foo".to_string(), "Bar bar".to_string()),
-                    ("Bar bar".to_string(), "Baz Baz".to_string()),
-                    ("Baz baz".to_string(), "Foo foo".to_string()),
+                    ("You!".to_string(), "(Yes, you 😋)".to_string()),
                 ], 
                 sub: vec![] 
             }

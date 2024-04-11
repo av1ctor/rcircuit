@@ -5,14 +5,20 @@
       "package": "rcircuit_be",
       "type": "rust",
       "optimize": "O4",
-      "gzip": true
+      "gzip": true,
+      "declarations": {
+        "bindings": ["js", "ts"]
+      }
     },
     "rcircuit_fe": {
       "source": [
         "src/rcircuit_fe/assets"
       ],
       "type": "assets",
-      "gzip": true
+      "gzip": true,
+      "declarations": {
+        "bindings": ["js", "ts"]
+      }
     }
   },
   "defaults": {
