@@ -9,7 +9,7 @@ ARENA_NAME="Neural Arena"
 ARENA_PRINCIPAL=$ARENA_BE_ID
 ASSET_CANISTER_URL="http://127.0.0.1:4943/{}?canisterId=$RCIRCUIT_FE_ID"
 
-dfx deploy rcircuit_be --argument "(record {
+dfx deploy --identity default rcircuit_be --argument "(record {
     asset_canister_url=\"$ASSET_CANISTER_URL\"; 
     controllers=vec {
         record {
