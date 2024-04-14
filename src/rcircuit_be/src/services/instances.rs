@@ -34,7 +34,6 @@ use super::controllers::ControllersService;
 
 const PLAYER_FOV_RAYS: usize = 15;
 const PLAYER_FOV_ANGLE: f32 = PI;
-const PLAYER_RADIUS: f32 = 0.5;
 
 pub struct InstancesService {}
 
@@ -91,7 +90,6 @@ impl InstancesService {
                 },
                 min_keys: 4,
                 num_players: 0,
-                player_radius: PLAYER_RADIUS,
                 debug: false,
                 training: false,
             }
@@ -206,7 +204,7 @@ impl InstancesService {
         let agents = inst.agents.as_mut().unwrap();
         
         if inst.state.step == 0 {
-            let obs = &game.reset(&mut renderer, rng);
+            let obs = &game.reset(&inst.state.players, &mut renderer, rng);
             for (i, player) in &mut inst.state.players.iter_mut().enumerate() {
                 player.state.obs = obs[i].clone();
             }
