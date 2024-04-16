@@ -15,13 +15,13 @@ use neuralarena_cdk::{
     dqn::dqn::DqnOptions, 
     models::{
         assets::{Asset, AssetRef}, 
-        env::Env, 
+        env::{Env, EnvPlayerOptions}, 
         game::{GameInfo, GameMapId}, 
         instance::{
             InstanceId, InstancePlayer, InstancePlayerEntity, 
             InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, 
             InstanceStep
-        }
+        }, nas1_types::Nas1TokenGameProps
     }
 };
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -135,10 +135,12 @@ impl InstancesService {
         let mut agents = vec![];
 
         for player in &inst.state.players {
-            if player.nft.props.num_hidden_layers != 1 {
+            let props = player.nft.props.as_ref().unwrap();
+            
+            if props.num_hidden_layers != 1 {
                 return Err(format!(
                     "Only 1 hidden layer supported. Found: {}", 
-                    player.nft.props.num_hidden_layers
+                    props.num_hidden_layers
                 ));
             }
             
@@ -147,9 +149,9 @@ impl InstancesService {
                 dqn: DqnOptions {
                     n_actions: inst.game.get_num_actions(),
                     n_obs: inst.game.get_num_obs(),
-                    n_hidden: player.nft.props.hidden_layers_weights_size[0]
+                    n_hidden: props.hidden_layers_weights_size[0]
                 },
-                epsilon: player.nft.props.epsilon as _,
+                epsilon: props.epsilon as _,
             };
 
             let mut agent = DqnAgent::new(&options);
@@ -204,7 +206,25 @@ impl InstancesService {
         let agents = inst.agents.as_mut().unwrap();
         
         if inst.state.step == 0 {
-            let obs = &game.reset(&inst.state.players, &mut renderer, rng);
+            let canister_id = ic_cdk::id();
+            let obs = &game.reset(
+                &inst.state.players.iter().map(|p| {
+                    let props = p.nft.props.as_ref().unwrap();
+                    let game_props = props.game_props
+                        .get(&canister_id)
+                        .or(Some(&Nas1TokenGameProps{
+                            xp: 0
+                        }))
+                        .unwrap();
+                    EnvPlayerOptions {
+                        radius: props.radius,
+                        height: props.height,
+                        xp: game_props.xp,
+                    }
+                }).collect(), 
+                &mut renderer, 
+                rng
+            );
             for (i, player) in &mut inst.state.players.iter_mut().enumerate() {
                 player.state.obs = obs[i].clone();
             }
@@ -225,7 +245,8 @@ impl InstancesService {
                 
                 if player.state.active {
                     player.state.last_thought += 1000;
-                    if player.state.last_thought >= player.nft.props.steps_per_thought {
+                    let props = player.nft.props.as_ref().unwrap();
+                    if player.state.last_thought >= props.steps_per_thought {
                         player.state.last_thought = 0;
 
                         actions[i].1 = match agents[p].choose_action(
@@ -257,11 +278,13 @@ impl InstancesService {
 
             for (i, player) in step.players.iter().enumerate() {
                 let inst_player = &mut inst.state.players[i];
+                let game_player = &game.entities.players[i];
 
                 inst_player.state.active = player.active;
                 inst_player.state.obs = player.obs.clone();
-                inst_player.state.score = game.entities.players[i].num_brains as _;
-                inst_player.state.health = game.entities.players[i].health;
+                inst_player.state.score = game_player.num_brains as _;
+                inst_player.state.health = game_player.health;
+                inst_player.state.xp = game_player.xp;
             }
 
             game.render(&mut renderer, 1000.0 / FPS as f32);
@@ -297,7 +320,8 @@ impl InstancesService {
             players: inst.state.players.iter()
                 .map(|p| InstancePlayerEntity {
                     health: p.state.health, 
-                    score: p.state.score
+                    score: p.state.score,
+                    xp: p.state.xp, 
                 })
                 .collect(),
             won_at: inst.won_at.clone(),
