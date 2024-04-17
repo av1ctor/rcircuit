@@ -205,7 +205,7 @@ fn get_maps(
     vec![
         GameMap { 
             id: consts::MAP_ID_CONTAINERS, 
-            name: "Containers".to_string(), 
+            name: "Arena".to_string(), 
             description: "An arena of containers".to_string(), 
             version: 0.1, 
             urls: GameMapUrls { 
@@ -213,6 +213,21 @@ fn get_maps(
                 image: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_CONTAINERS)), 
                 music: GameMapMusicUrls {
                     main: asset_canister_url.replace("{}", &format!("maps/{}/songs/voltaire.ogg", consts::MAP_ID_CONTAINERS)),
+                    victory: asset_canister_url.replace("{}", "songs/victory.ogg"),
+                    over: asset_canister_url.replace("{}", "songs/victory.ogg"),
+                }, 
+            }
+        },
+        GameMap { 
+            id: consts::MAP_ID_LABYRINTH, 
+            name: "Labyrinth".to_string(), 
+            description: "A labyrinth of containers".to_string(), 
+            version: 0.1, 
+            urls: GameMapUrls { 
+                model: asset_canister_url.replace("{}", &format!("maps/{}/map.gltf", consts::MAP_ID_LABYRINTH)), 
+                image: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_LABYRINTH)), 
+                music: GameMapMusicUrls {
+                    main: asset_canister_url.replace("{}", &format!("maps/{}/songs/area12.ogg", consts::MAP_ID_LABYRINTH)),
                     victory: asset_canister_url.replace("{}", "songs/victory.ogg"),
                     over: asset_canister_url.replace("{}", "songs/victory.ogg"),
                 }, 
