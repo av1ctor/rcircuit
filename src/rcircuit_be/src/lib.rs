@@ -233,21 +233,6 @@ fn get_maps(
                 }, 
             }
         },
-        GameMap { 
-            id: consts::MAP_ID_TERRAIN, 
-            name: "Terrain".to_string(), 
-            description: "A low poly terrain".to_string(), 
-            version: 0.1, 
-            urls: GameMapUrls { 
-                model: asset_canister_url.replace("{}", &format!("maps/{}/map.gltf", consts::MAP_ID_TERRAIN)), 
-                image: asset_canister_url.replace("{}", &format!("maps/{}/covers/cover.jpg", consts::MAP_ID_TERRAIN)), 
-                music: GameMapMusicUrls {
-                    main: asset_canister_url.replace("{}", &format!("maps/{}/songs/old.ogg", consts::MAP_ID_TERRAIN)),
-                    victory: asset_canister_url.replace("{}", "songs/victory.ogg"),
-                    over: asset_canister_url.replace("{}", "songs/victory.ogg"),
-                }, 
-            }
-        }
     ]
 }
 
