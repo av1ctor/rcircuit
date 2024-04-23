@@ -32,7 +32,7 @@ pub struct Instance {
     pub options: HashMap<String, String>,
     pub state: InstanceState,
     pub game: Game,
-    pub agents: Option<Vec<DqnAgent>>,
+    pub agents: Option<Vec<HashMap<String, DqnAgent>>>,
     pub created_at: u64,
     pub created_by: Principal,
     pub started_at: Option<u64>,

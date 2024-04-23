@@ -18,17 +18,13 @@ use neuralarena_cdk::{
         env::{Env, EnvPlayerOptions}, 
         game::{GameInfo, GameMapId}, 
         instance::{
-            InstanceId, InstancePlayer, InstancePlayerEntity, 
-            InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, 
-            InstanceStep
+            InstanceId, InstancePlayer, InstancePlayerEntity, InstancePlayerState, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
         }, nas1_types::Nas1TokenGameProps
     }
 };
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::{
-    models::instance::{Instance, InstanceStatus}, 
-    renderers::null_renderer::NullRenderer,
-    db::DB
+    config, db::DB, models::instance::{Instance, InstanceStatus}, renderers::null_renderer::NullRenderer
 };
 use super::controllers::ControllersService;
 
@@ -144,21 +140,26 @@ impl InstancesService {
                 ));
             }
             
-            // create the agent
-            let options = BaseAgentOptions { 
-                dqn: DqnOptions {
-                    n_actions: inst.game.get_num_actions(),
-                    n_obs: inst.game.get_num_obs(),
-                    n_hidden: props.hidden_layers_weights_size[0]
-                },
-                epsilon: props.epsilon as _,
-            };
+            // create an agent for each skill
+            let mut agent_skills = HashMap::new();
+            for skill in config::SKILLS {
+                let options = BaseAgentOptions { 
+                    dqn: DqnOptions {
+                        n_actions: inst.game.get_num_actions(&skill),
+                        n_obs: inst.game.get_num_obs(&skill),
+                        n_hidden: props.hidden_layers_weights_size[0]
+                    },
+                    epsilon: props.epsilon as _,
+                };
 
-            let mut agent = DqnAgent::new(&options);
+                let mut agent = DqnAgent::new(&options);
 
-            agent.load(&player.tensors["seek-target"])?;
+                agent.load(&player.tensors[*skill])?;
 
-            agents.push(agent);
+                agent_skills.insert(skill.to_string(), agent);
+            }
+
+            agents.push(agent_skills);
         }
 
         inst.agents = Some(agents);
@@ -207,7 +208,7 @@ impl InstancesService {
         
         if inst.state.step == 0 {
             let canister_id = ic_cdk::id();
-            let obs = &game.reset(
+            let players_obs = game.reset(
                 &inst.state.players.iter().map(|p| {
                     let props = p.nft.props.as_ref().unwrap();
                     let game_props = props.game_props
@@ -225,8 +226,11 @@ impl InstancesService {
                 &mut renderer, 
                 rng
             );
-            for (i, player) in &mut inst.state.players.iter_mut().enumerate() {
-                player.state.obs = obs[i].clone();
+            
+            let mut i = 0;
+            for obs in players_obs {
+                inst.state.players[i].state.obs = obs;
+                i += 1;
             }
         }
 
@@ -251,11 +255,14 @@ impl InstancesService {
                     if player.state.last_thought >= props.steps_per_thought {
                         player.state.last_thought = 0;
 
-                        actions[i].1 = match agents[p].choose_action(
-                            player.state.obs.clone().into(), rng) {
-                            Some(action) => Some(action),
-                            None => Some(game.random_action(rng)),
-                        };
+                        let skill = &player.state.skill;
+                        if let Some(agent) = agents[p].get_mut(skill) {
+                            actions[i].1 = match agent.choose_action(
+                                player.state.obs[skill].clone().into(), rng) {
+                                Some(action) => Some(action),
+                                None => Some(game.random_action(skill, rng)),
+                            };
+                        }
                     }
                 }
             }
@@ -278,15 +285,22 @@ impl InstancesService {
                 inst.state.terminated = true;
             }
 
-            for (i, player) in step.players.iter().enumerate() {
+            let mut i = 0;
+            for step_player in step.players {
                 let inst_player = &mut inst.state.players[i];
                 let game_player = &game.entities.players[i];
 
-                inst_player.state.active = player.active;
-                inst_player.state.obs = player.obs.clone();
-                inst_player.state.score = game_player.num_brains as _;
-                inst_player.state.health = game_player.health;
-                inst_player.state.xp = game_player.xp;
+                inst_player.state = InstancePlayerState {
+                    active: step_player.active,
+                    skill: step_player.skill,
+                    obs: step_player.obs,
+                    score: game_player.num_brains as _,
+                    health: game_player.health,
+                    xp: game_player.xp,
+                    ..inst_player.state
+                };
+
+                i += 1;
             }
 
             game.render(&mut renderer, 1000.0 / FPS as f32);

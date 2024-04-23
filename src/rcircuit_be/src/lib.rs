@@ -28,27 +28,13 @@ use services::{
     instances::InstancesService
 };
 
+mod config;
 mod models;
 mod db;
 mod services;
 mod renderers;
 
 const STATE_VERSION: f32 = 0.1;
-
-const COST_TO_PLAY: u128 = (0.01 * 1_00000000.0) as _;
-const WINNER_REWARD: u128 = 25; // * 100
-const SKILLS: &[&str] = &[
-    "seek-target"
-];
-const STATES: &[&str] = &[
-    "idle",
-    "walking",
-    "celebrating",
-    "attacking",
-    "hit",
-    "dying",
-    "dead",
-];
 
 #[derive(Default, Serialize, Deserialize)]
 struct State {
@@ -261,14 +247,14 @@ fn get_urls(
 fn get_costs(
 ) -> GameCosts {
     GameCosts { 
-        to_play: GameCost::ICP(COST_TO_PLAY),
+        to_play: GameCost::ICP(config::COST_TO_PLAY),
     }
 }
 
 fn get_rewards(
 ) -> GameRewards {
     GameRewards { 
-        winner: WINNER_REWARD,
+        winner: config::WINNER_REWARD,
     }
 }
 
@@ -287,8 +273,8 @@ fn get_info(
         costs: get_costs(),
         rewards: get_rewards(),
         urls: get_urls(asset_canister_url),
-        skills: SKILLS.iter().map(|s| s.to_string()).collect(),
-        states: STATES.iter().map(|a| a.to_string()).collect(),
+        skills: config::SKILLS.iter().map(|s| s.to_string()).collect(),
+        states: config::STATES.iter().map(|a| a.to_string()).collect(),
         sfx_sets: get_sfx_sets(asset_canister_url),
         maps: get_maps(asset_canister_url),
     }
