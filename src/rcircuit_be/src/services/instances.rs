@@ -232,10 +232,12 @@ impl InstancesService {
 
         let begin_t = ic_cdk::api::performance_counter(0);
 
+        let mut players_idx = Self::create_players_idx(game, rng);
+
         while inst.state.step < req.max_steps {
             let mut actions = vec![(0usize, None); game.options.num_players];
 
-            let players_idx = Self::shuffle_players_idx(game, rng);
+            Self::circ_players_idx(&mut players_idx);
             
             for i in 0..game.options.num_players {
                 let p = players_idx[i];
@@ -333,7 +335,7 @@ impl InstancesService {
         Ok(res)
     }
 
-    fn shuffle_players_idx(
+    fn create_players_idx(
         game: &mut Game,
         rng: &mut StdRng
     ) -> Vec<usize> {
@@ -344,6 +346,19 @@ impl InstancesService {
         }
     
         indexes.into_iter().collect()
+    }
+
+    fn circ_players_idx(
+        indexes: &mut Vec<usize>
+    ) {
+        let len = indexes.len();
+        
+        let first = indexes[0];
+        for i in 0..len-1 {
+            indexes[i] = indexes[i+1];
+        }
+
+        indexes[len-1] = first;
     }
 
     pub fn _delete(
