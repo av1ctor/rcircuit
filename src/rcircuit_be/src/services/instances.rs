@@ -213,7 +213,7 @@ impl InstancesService {
                     let game_props = props.game_props
                         .get(&canister_id)
                         .or(Some(&Nas1TokenGameProps{
-                            xp: 0
+                            xp: 0.0
                         }))
                         .unwrap();
                     EnvPlayerOptions {
