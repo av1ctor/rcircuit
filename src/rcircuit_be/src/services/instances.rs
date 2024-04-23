@@ -18,13 +18,18 @@ use neuralarena_cdk::{
         env::{Env, EnvPlayerOptions}, 
         game::{GameInfo, GameMapId}, 
         instance::{
-            InstanceId, InstancePlayer, InstancePlayerEntity, InstancePlayerState, InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
-        }, nas1_types::Nas1TokenGameProps
+            InstanceId, InstancePlayer, InstancePlayerEntity, InstancePlayerState, 
+            InstanceRunRequest, InstanceRunResponse, InstanceRunSlice, InstanceStep
+        }, 
+        nas1_types::Nas1TokenGameProps
     }
 };
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use crate::{
-    config, db::DB, models::instance::{Instance, InstanceStatus}, renderers::null_renderer::NullRenderer
+    config, 
+    db::DB, 
+    models::instance::{Instance, InstanceStatus}, 
+    renderers::null_renderer::NullRenderer
 };
 use super::controllers::ControllersService;
 
