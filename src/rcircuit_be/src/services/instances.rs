@@ -35,6 +35,7 @@ use super::controllers::ControllersService;
 
 const PLAYER_FOV_RAYS: usize = 15;
 const PLAYER_FOV_ANGLE: f32 = PI;
+const PLAYER_FOV_DISTANCE: f32 = 2.5;
 
 pub struct InstancesService {}
 
@@ -87,7 +88,7 @@ impl InstancesService {
                 fov: PlayerFOV { 
                     rays: PLAYER_FOV_RAYS, 
                     angle: PLAYER_FOV_ANGLE, 
-                    max_dist: 2.5,
+                    max_dist: PLAYER_FOV_DISTANCE,
                 },
                 min_keys: 4,
                 num_players: 0,
