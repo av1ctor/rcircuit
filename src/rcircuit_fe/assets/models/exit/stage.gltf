@@ -1,6 +1,6 @@
 {
 	"asset":{
-		"generator":"Khronos glTF Blender I/O v4.0.44",
+		"generator":"Khronos glTF Blender I/O v4.1.63",
 		"version":"2.0"
 	},
 	"scene":0,
@@ -8,109 +8,53 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				4
+				0
 			]
 		}
 	],
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Object_4",
-			"scale":[
-				1,
-				1.0681662559509277,
-				1
-			],
-			"translation":[
-				0.0010212846100330353,
-				0,
-				0.0021459683775901794
-			]
-		},
-		{
-			"children":[
-				0
-			],
-			"name":"Cylinder_1",
+			"name":"SP_CCS_CableReel_1_SP_CCS_CableReel_1_0.001",
 			"rotation":[
-				0,
-				1,
-				0,
-				0
+				-0.0019000988686457276,
+				0.9713870882987976,
+				-0.0010591463651508093,
+				0.23749224841594696
 			],
 			"scale":[
-				-1.018674921989441,
-				-0.0848429948091507,
-				-1.018674921989441
+				0.01914125680923462,
+				0.01914125494658947,
+				0.019141262397170067
 			],
 			"translation":[
-				46.20026397705078,
-				0.08511365950107574,
-				27.852985382080078
-			]
-		},
-		{
-			"children":[
-				1
-			],
-			"name":"GLTF_SceneRootNode",
-			"rotation":[
-				0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			],
-			"translation":[
-				-3.814697265625e-06,
-				0,
-				0
-			]
-		},
-		{
-			"children":[
-				2
-			],
-			"name":"root",
-			"translation":[
-				-3.814697265625e-06,
-				0,
-				0
-			]
-		},
-		{
-			"children":[
-				3
-			],
-			"name":"Sketchfab_model",
-			"rotation":[
-				-0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			],
-			"translation":[
-				-46.169918060302734,
-				0,
-				-27.824697494506836
+				0.0032351119443774223,
+				0.06353732943534851,
+				-0.004636485129594803
 			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material.001",
+			"name":"SP_CCS_CableReel_1",
+			"normalTexture":{
+				"index":0
+			},
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":0
+					"index":1
 				},
-				"metallicFactor":0.25,
-				"roughnessFactor":0.3
+				"metallicRoughnessTexture":{
+					"index":2
+				},
+				"roughnessFactor":0.5582156777381897
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Object_0",
+			"name":"SP_CCS_CableReel_1_SP_CCS_CableReel_1_0",
 			"primitives":[
 				{
 					"attributes":{
@@ -128,74 +72,92 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
 		}
 	],
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"texture",
-			"uri":"texture.png"
+			"name":"Image_8-1",
+			"uri":"Image_8-1.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"Image_6-1",
+			"uri":"Image_6-1.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"Image_7-1",
+			"uri":"Image_7-1.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":793,
+			"count":98,
 			"max":[
-				0.9999039173126221,
-				0.9073848724365234,
-				0.9996135234832764
+				78.4458999633789,
+				3.00164794921875,
+				78.43479919433594
 			],
 			"min":[
-				-0.9999027848243713,
-				-1.0926151275634766,
-				-1.0000001192092896
+				-78.49247741699219,
+				-2.995098114013672,
+				-78.3860855102539
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":793,
+			"count":98,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":793,
+			"count":98,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1689,
+			"count":249,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":9516,
+			"byteLength":1176,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":9516,
-			"byteOffset":9516,
+			"byteLength":1176,
+			"byteOffset":1176,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6344,
-			"byteOffset":19032,
+			"byteLength":784,
+			"byteOffset":2352,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3378,
-			"byteOffset":25376,
+			"byteLength":498,
+			"byteOffset":3136,
 			"target":34963
 		}
 	],
@@ -207,7 +169,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":28756,
+			"byteLength":3636,
 			"uri":"stage.bin"
 		}
 	]
