@@ -4,7 +4,7 @@
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/wasm",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -13,7 +13,7 @@
       "match": "maps/**/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -22,7 +22,7 @@
       "match": "models/**/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -31,7 +31,7 @@
       "match": "scenes/**/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -40,7 +40,7 @@
       "match": "sfxs/**/**/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
@@ -49,7 +49,7 @@
       "match": "songs/*",
       "headers": {
         "Access-Control-Allow-Origin": "*",
-        "Cache-Control": "max-age=21600"
+        "Cache-Control": "max-age=604800"
       },
       "ignore": false,
       "allow_raw_access": false
